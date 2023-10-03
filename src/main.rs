@@ -1,38 +1,129 @@
-use bevy::prelude::*;
+use bevy::{prelude::*, sprite::Anchor};
 
-#[derive(Component)]
-struct Person;
+// const TERM_WIDTH: i32 = 80;
+// const TERM_HEIGHT: i32 = 50;
 
-#[derive(Component)]
-struct Name(String);
-
-fn add_people(mut commands: Commands) {
-    commands.spawn((Person, Name("Elaina Proctor".to_string())));
-    commands.spawn((Person, Name("Renzo Hume".to_string())));
-    commands.spawn((Person, Name("Zayna Nieves".to_string())));
+fn main() {
+    App::new()
+        .insert_resource(ClearColor(Color::BLACK))
+        .add_plugins(
+            DefaultPlugins
+                .set(WindowPlugin {
+                    primary_window: Some(Window {
+                        title: "Eambar".to_string(),
+                        resolution: (80. * 16., 50. * 16.).into(),
+                        ..default()
+                    }),
+                    ..default()
+                })
+                // don't alias pixel art
+                .set(ImagePlugin::default_nearest()),
+        )
+        .add_systems(Startup, setup)
+        .add_systems(Update, (move_left, player_input))
+        .add_systems(Update, bevy::window::close_on_esc)
+        .run();
 }
 
-#[derive(Resource)]
-struct GreetTimer(Timer);
+fn setup(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    mut assets: ResMut<Assets<TextureAtlas>>,
+) {
+    let atlas = assets.add(TextureAtlas::from_grid(
+        asset_server.load("terminal8x8.png"),
+        (8., 8.).into(),
+        16,
+        16,
+        None,
+        None,
+    ));
 
-fn greet_people(time: Res<Time>, mut timer: ResMut<GreetTimer>, query: Query<&Name, With<Person>>) {
-    if timer.0.tick(time.delta()).just_finished() {
-        for name in &query {
-            println!("hello {}!", name.0);
+    commands.spawn(Camera2dBundle::default());
+
+    // Player
+    commands.spawn((
+        Player,
+        SpriteSheetBundle {
+            texture_atlas: atlas.clone(),
+            sprite: TextureAtlasSprite {
+                index: 64,
+                color: Color::YELLOW,
+                anchor: Anchor::TopLeft,
+                ..default()
+            },
+            transform: pos(40, 25),
+            ..default()
+        },
+    ));
+
+    // Smilies
+    for i in 0..10 {
+        commands.spawn((
+            SpriteSheetBundle {
+                texture_atlas: atlas.clone(),
+                sprite: TextureAtlasSprite {
+                    index: 1,
+                    color: Color::RED,
+                    anchor: Anchor::TopLeft,
+                    ..default()
+                },
+                transform: pos(i * 7, 20),
+                ..default()
+            },
+            LeftMover,
+        ));
+    }
+}
+
+fn pos(x: i32, y: i32) -> Transform {
+    let x = (x - 40) as f32 * 16.;
+    let y = -(y - 25) as f32 * 16.;
+
+    Transform {
+        translation: (x, y, 0.).into(),
+        scale: Vec3::splat(2.),
+        ..default()
+    }
+}
+
+#[derive(Component)]
+struct LeftMover;
+
+fn move_left(mut query: Query<&mut Transform, With<LeftMover>>) {
+    for mut transform in &mut query {
+        transform.translation.x -= 16.;
+
+        if transform.translation.x < 16. * -40. {
+            transform.translation.x = 16. * 39.;
         }
     }
 }
 
-pub struct HelloPlugin;
+#[derive(Component)]
+struct Player;
 
-impl Plugin for HelloPlugin {
-    fn build(&self, app: &mut App) {
-        app.insert_resource(GreetTimer(Timer::from_seconds(2.0, TimerMode::Repeating)))
-            .add_systems(Startup, add_people)
-            .add_systems(Update, greet_people);
+fn player_input(mut query: Query<&mut Transform, With<Player>>, keys: Res<Input<KeyCode>>) {
+    for mut transform in &mut query {
+        if keys.just_pressed(KeyCode::Up) {
+            try_move(0, -1, &mut transform);
+        }
+        if keys.just_pressed(KeyCode::Right) {
+            try_move(1, 0, &mut transform);
+        }
+        if keys.just_pressed(KeyCode::Down) {
+            try_move(0, 1, &mut transform);
+        }
+        if keys.just_pressed(KeyCode::Left) {
+            try_move(-1, 0, &mut transform);
+        }
     }
 }
 
-fn main() {
-    App::new().add_plugins((DefaultPlugins, HelloPlugin)).run();
+fn try_move(delta_x: i32, delta_y: i32, transform: &mut Transform) {
+    let delta_x = delta_x as f32 * 16.;
+    let delta_y = -delta_y as f32 * 16.;
+
+    transform.translation.x = (transform.translation.x + delta_x).clamp(-40. * 16., 39. * 16.);
+    transform.translation.y = (transform.translation.y + delta_y).clamp(-24. * 16., 25. * 16.);
 }
