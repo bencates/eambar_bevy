@@ -1,5 +1,8 @@
 use {
-    crate::{assets::TextSprite, map::Position},
+    crate::{
+        assets::TextSprite,
+        map::{Map, Position},
+    },
     bevy::prelude::*,
     hex2d::Direction,
 };
@@ -52,6 +55,7 @@ fn keyboard_input(keys: Res<Input<KeyCode>>, mut action: EventWriter<MoveEvent>)
 fn handle_move_event(
     mut events: EventReader<MoveEvent>,
     mut query: Query<&mut Transform, With<Player>>,
+    map: Res<Map>,
 ) {
     for MoveEvent(dir) in events.iter() {
         for mut transform in &mut query {
@@ -59,10 +63,9 @@ fn handle_move_event(
 
             debug!("new pos: {pos:?}");
 
-            // transform.translation.x = (transform.translation.x + delta_x).clamp(-40. * 16., 39. * 16.);
-            // transform.translation.y = (transform.translation.y + delta_y).clamp(-24. * 16., 25. * 16.);
-
-            transform.translation = pos.into()
+            if !map[&pos].is_blocked() {
+                transform.translation = pos.into()
+            }
         }
     }
 }

@@ -70,7 +70,7 @@ pub fn build(radius: i32, rng: &mut impl Rng) -> Tiles {
 }
 
 fn is_blocked(tiles: &Tiles, coord: &Coordinate) -> bool {
-    tiles.get(coord) == Some(&Tile::Wall)
+    tiles.get(coord).is_some_and(|tile| tile.is_blocked())
 }
 
 fn longest_path(

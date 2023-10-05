@@ -4,7 +4,7 @@ use bevy::prelude::{debug, Component, Resource, Vec3};
 use bevy::utils::{HashMap, HashSet};
 use hex2d::{Coordinate, Direction, Spacing};
 use rand::Rng;
-// use std::ops::Index;
+use std::ops::Index;
 
 // const MAP_WIDTH: i32 = 49;
 // const MAP_HEIGHT: i32 = 49;
@@ -44,6 +44,12 @@ pub enum Tile {
     Wall,
 }
 
+impl Tile {
+    pub fn is_blocked(&self) -> bool {
+        self == &Tile::Wall
+    }
+}
+
 #[derive(Resource)]
 pub struct Map {
     tiles: HashMap<Coordinate, Tile>,
@@ -67,10 +73,10 @@ impl Map {
     }
 }
 
-// impl Index<Position> for Map {
-//     type Output = Tile;
+impl Index<&Position> for Map {
+    type Output = Tile;
 
-//     fn index(&self, Position(coord, _): Position) -> &Tile {
-//         self.tiles.get(&coord).unwrap_or(&Tile::Floor)
-//     }
-// }
+    fn index(&self, Position(coord, _): &Position) -> &Tile {
+        self.tiles.get(coord).unwrap_or(&Tile::Floor)
+    }
+}
