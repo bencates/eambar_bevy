@@ -1,4 +1,3 @@
-use crate::map::Position;
 use bevy::prelude::*;
 
 #[derive(Resource)]
@@ -26,7 +25,7 @@ impl FromWorld for TextSprite {
 }
 
 impl TextSprite {
-    pub fn bundle(&self, c: char, color: Color, pos: Position) -> SpriteSheetBundle {
+    pub fn bundle(&self, c: char, color: Color) -> SpriteSheetBundle {
         SpriteSheetBundle {
             texture_atlas: self.texture_atlas.clone(),
             sprite: TextureAtlasSprite {
@@ -37,10 +36,6 @@ impl TextSprite {
                     _ => unimplemented!(),
                 },
                 color,
-                ..default()
-            },
-            transform: Transform {
-                translation: pos.into(),
                 ..default()
             },
             ..default()

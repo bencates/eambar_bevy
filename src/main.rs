@@ -1,12 +1,12 @@
 mod assets;
 mod map;
+mod movement;
 mod player;
 
 use {
     crate::{
         assets::TextSprite,
         map::{Map, Tile},
-        player::PlayerPlugin,
     },
     bevy::{log::LogPlugin, prelude::*},
 };
@@ -34,7 +34,8 @@ fn main() {
                 })
                 // don't alias pixel art
                 .set(ImagePlugin::default_nearest()),
-            PlayerPlugin,
+            movement::MovementPlugin,
+            player::PlayerPlugin,
         ))
         .init_resource::<TextSprite>()
         .insert_resource(ClearColor(Color::BLACK))
@@ -48,13 +49,17 @@ fn setup(mut commands: Commands, text_sprite: Res<TextSprite>, map: Res<Map>) {
     commands.spawn(Camera2dBundle::default());
 
     for (pos, tile) in map.visible_tiles() {
-        commands.spawn(text_sprite.bundle(
-            match tile {
-                Tile::Floor => '.',
-                Tile::Wall => '#',
-            },
-            Color::WHITE,
-            pos,
-        ));
+        commands
+            .spawn(text_sprite.bundle(
+                match tile {
+                    Tile::Floor => '.',
+                    Tile::Wall => '#',
+                },
+                Color::WHITE,
+            ))
+            .insert(Transform {
+                translation: pos.into(),
+                ..default()
+            });
     }
 }
