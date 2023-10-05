@@ -1,6 +1,8 @@
+mod assets;
 mod map;
 
 use {
+    assets::TextSprite,
     bevy::{log::LogPlugin, prelude::*},
     hex2d::Direction,
     map::{Map, Position, Tile},
@@ -14,8 +16,6 @@ const PLAYER_Z_INDEX: i32 = 1;
 
 fn main() {
     let mut rng = rand::thread_rng();
-
-    info!("starting main");
 
     App::new()
         .add_plugins(
@@ -35,6 +35,7 @@ fn main() {
                 // don't alias pixel art
                 .set(ImagePlugin::default_nearest()),
         )
+        .init_resource::<TextSprite>()
         .insert_resource(ClearColor(Color::BLACK))
         .insert_resource(Map::new(&mut rng))
         .add_systems(Startup, setup)
@@ -43,58 +44,24 @@ fn main() {
         .run();
 }
 
-fn setup(
-    mut commands: Commands,
-    asset_server: Res<AssetServer>,
-    mut assets: ResMut<Assets<TextureAtlas>>,
-    map: Res<Map>,
-) {
-    let atlas = assets.add(TextureAtlas::from_grid(
-        asset_server.load("terminal8x8.png"),
-        (8., 8.).into(),
-        16,
-        16,
-        None,
-        None,
-    ));
-
+fn setup(mut commands: Commands, text_sprite: Res<TextSprite>, map: Res<Map>) {
     commands.spawn(Camera2dBundle::default());
 
     for (pos, tile) in map.visible_tiles() {
-        commands.spawn(SpriteSheetBundle {
-            texture_atlas: atlas.clone(),
-            sprite: TextureAtlasSprite {
-                index: match tile {
-                    Tile::Floor => 46,
-                    Tile::Wall => 35,
-                },
-                color: Color::WHITE,
-                ..default()
+        commands.spawn(text_sprite.bundle(
+            match tile {
+                Tile::Floor => '.',
+                Tile::Wall => '#',
             },
-            transform: Transform {
-                translation: pos.into(),
-                ..default()
-            },
-            ..default()
-        });
+            Color::WHITE,
+            pos,
+        ));
     }
 
     // Player
     commands.spawn((
         Player,
-        SpriteSheetBundle {
-            texture_atlas: atlas.clone(),
-            sprite: TextureAtlasSprite {
-                index: 64,
-                color: Color::YELLOW,
-                ..default()
-            },
-            transform: Transform {
-                translation: Position::new(0, 0, PLAYER_Z_INDEX).into(),
-                ..default()
-            },
-            ..default()
-        },
+        text_sprite.bundle('@', Color::YELLOW, Position::new(0, 0, PLAYER_Z_INDEX)),
     ));
 }
 
