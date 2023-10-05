@@ -1,6 +1,5 @@
 mod bisection_generator;
 
-use super::MAP_Z_INDEX;
 use bevy::prelude::{debug, Component, Resource, Vec3};
 use bevy::utils::{HashMap, HashSet};
 use hex2d::{Coordinate, Direction, Spacing};
@@ -64,7 +63,7 @@ impl Map {
     pub fn visible_tiles(&self) -> impl Iterator<Item = (Position, &Tile)> {
         self.tiles
             .iter()
-            .map(|(coord, tile)| (Position(*coord, MAP_Z_INDEX as f32), tile))
+            .map(|(coord, tile)| (Position(*coord, 0.), tile))
     }
 }
 

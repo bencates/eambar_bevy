@@ -1,24 +1,24 @@
 mod assets;
 mod map;
+mod player;
 
 use {
-    assets::TextSprite,
+    crate::{
+        assets::TextSprite,
+        map::{Map, Tile},
+        player::PlayerPlugin,
+    },
     bevy::{log::LogPlugin, prelude::*},
-    hex2d::Direction,
-    map::{Map, Position, Tile},
 };
 
 // const TERM_WIDTH: i32 = 80;
 // const TERM_HEIGHT: i32 = 50;
 
-const MAP_Z_INDEX: i32 = 0;
-const PLAYER_Z_INDEX: i32 = 1;
-
 fn main() {
     let mut rng = rand::thread_rng();
 
     App::new()
-        .add_plugins(
+        .add_plugins((
             DefaultPlugins
                 .set(LogPlugin {
                     filter: "eambar=trace,wgpu=warn".to_string(),
@@ -34,12 +34,12 @@ fn main() {
                 })
                 // don't alias pixel art
                 .set(ImagePlugin::default_nearest()),
-        )
+            PlayerPlugin,
+        ))
         .init_resource::<TextSprite>()
         .insert_resource(ClearColor(Color::BLACK))
         .insert_resource(Map::new(&mut rng))
         .add_systems(Startup, setup)
-        .add_systems(Update, player_input)
         .add_systems(Update, bevy::window::close_on_esc)
         .run();
 }
@@ -57,47 +57,4 @@ fn setup(mut commands: Commands, text_sprite: Res<TextSprite>, map: Res<Map>) {
             pos,
         ));
     }
-
-    // Player
-    commands.spawn((
-        Player,
-        text_sprite.bundle('@', Color::YELLOW, Position::new(0, 0, PLAYER_Z_INDEX)),
-    ));
-}
-
-#[derive(Component)]
-struct Player;
-
-fn player_input(mut query: Query<&mut Transform, With<Player>>, keys: Res<Input<KeyCode>>) {
-    for mut transform in &mut query {
-        if keys.just_pressed(KeyCode::Q) {
-            try_move(Direction::ZX, &mut transform);
-        }
-        if keys.just_pressed(KeyCode::W) {
-            try_move(Direction::ZY, &mut transform);
-        }
-        if keys.just_pressed(KeyCode::E) {
-            try_move(Direction::XY, &mut transform);
-        }
-        if keys.just_pressed(KeyCode::A) {
-            try_move(Direction::YX, &mut transform);
-        }
-        if keys.just_pressed(KeyCode::S) {
-            try_move(Direction::YZ, &mut transform);
-        }
-        if keys.just_pressed(KeyCode::D) {
-            try_move(Direction::XZ, &mut transform);
-        }
-    }
-}
-
-fn try_move(dir: hex2d::Direction, transform: &mut Transform) {
-    let pos = Position::from(transform.translation).step(dir);
-
-    debug!("new pos: {pos:?}");
-
-    // transform.translation.x = (transform.translation.x + delta_x).clamp(-40. * 16., 39. * 16.);
-    // transform.translation.y = (transform.translation.y + delta_y).clamp(-24. * 16., 25. * 16.);
-
-    transform.translation = pos.into()
 }
