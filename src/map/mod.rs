@@ -1,7 +1,9 @@
+mod bisection_generator;
+
 use super::MAP_Z_INDEX;
-use bevy::prelude::{Component, Resource, Vec3};
+use bevy::prelude::{debug, Component, Resource, Vec3};
 use bevy::utils::{HashMap, HashSet};
-use hex2d::{Coordinate, Direction, Spacing, Spin};
+use hex2d::{Coordinate, Direction, Spacing};
 use rand::Rng;
 // use std::ops::Index;
 
@@ -37,7 +39,7 @@ impl From<Position> for Vec3 {
     }
 }
 
-#[derive(Clone, Copy, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Tile {
     Floor,
     Wall,
@@ -50,15 +52,11 @@ pub struct Map {
 }
 
 impl Map {
-    pub fn new(_rng: &mut impl Rng) -> Self {
-        // Start with a ring of walls
-        let tiles = Coordinate::new(0, 0)
-            .ring_iter(24, Spin::CW(Direction::ZX))
-            .map(|c| (c, Tile::Wall))
-            .collect();
+    pub fn new(rng: &mut impl Rng) -> Self {
+        debug!("building a new map");
 
         Self {
-            tiles,
+            tiles: bisection_generator::build(24, rng),
             _revealed: HashSet::new(),
         }
     }

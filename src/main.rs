@@ -1,8 +1,10 @@
 mod map;
 
-use bevy::prelude::*;
-use hex2d::Direction;
-use map::{Map, Position, Tile};
+use {
+    bevy::{log::LogPlugin, prelude::*},
+    hex2d::Direction,
+    map::{Map, Position, Tile},
+};
 
 // const TERM_WIDTH: i32 = 80;
 // const TERM_HEIGHT: i32 = 50;
@@ -13,11 +15,15 @@ const PLAYER_Z_INDEX: i32 = 1;
 fn main() {
     let mut rng = rand::thread_rng();
 
+    info!("starting main");
+
     App::new()
-        .insert_resource(ClearColor(Color::BLACK))
-        .insert_resource(Map::new(&mut rng))
         .add_plugins(
             DefaultPlugins
+                .set(LogPlugin {
+                    filter: "eambar=trace,wgpu=warn".to_string(),
+                    ..default()
+                })
                 .set(WindowPlugin {
                     primary_window: Some(Window {
                         title: "Eambar".to_string(),
@@ -29,6 +35,8 @@ fn main() {
                 // don't alias pixel art
                 .set(ImagePlugin::default_nearest()),
         )
+        .insert_resource(ClearColor(Color::BLACK))
+        .insert_resource(Map::new(&mut rng))
         .add_systems(Startup, setup)
         .add_systems(Update, player_input)
         .add_systems(Update, bevy::window::close_on_esc)
@@ -118,6 +126,8 @@ fn player_input(mut query: Query<&mut Transform, With<Player>>, keys: Res<Input<
 
 fn try_move(dir: hex2d::Direction, transform: &mut Transform) {
     let pos = Position::from(transform.translation).step(dir);
+
+    debug!("new pos: {pos:?}");
 
     // transform.translation.x = (transform.translation.x + delta_x).clamp(-40. * 16., 39. * 16.);
     // transform.translation.y = (transform.translation.y + delta_y).clamp(-24. * 16., 25. * 16.);
