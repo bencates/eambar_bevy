@@ -4,10 +4,7 @@ mod movement;
 mod player;
 
 use {
-    crate::{
-        assets::TextSprite,
-        map::{Map, Tile},
-    },
+    crate::assets::TextSprite,
     bevy::{log::LogPlugin, prelude::*},
 };
 
@@ -15,8 +12,6 @@ use {
 // const TERM_HEIGHT: i32 = 50;
 
 fn main() {
-    let mut rng = rand::thread_rng();
-
     App::new()
         .add_plugins((
             DefaultPlugins
@@ -34,32 +29,15 @@ fn main() {
                 })
                 // don't alias pixel art
                 .set(ImagePlugin::default_nearest()),
+            map::MapPlugin,
             movement::MovementPlugin,
             player::PlayerPlugin,
         ))
         .init_resource::<TextSprite>()
         .insert_resource(ClearColor(Color::BLACK))
-        .insert_resource(Map::new(&mut rng))
-        .add_systems(Startup, setup)
+        .add_systems(Startup, |mut commands: Commands| {
+            commands.spawn(Camera2dBundle::default());
+        })
         .add_systems(Update, bevy::window::close_on_esc)
         .run();
-}
-
-fn setup(mut commands: Commands, text_sprite: Res<TextSprite>, map: Res<Map>) {
-    commands.spawn(Camera2dBundle::default());
-
-    for (pos, tile) in map.visible_tiles() {
-        commands
-            .spawn(text_sprite.bundle(
-                match tile {
-                    Tile::Floor => '.',
-                    Tile::Wall => '#',
-                },
-                Color::WHITE,
-            ))
-            .insert(Transform {
-                translation: pos.into(),
-                ..default()
-            });
-    }
 }

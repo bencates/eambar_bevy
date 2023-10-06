@@ -1,78 +1,54 @@
 mod bisection_generator;
+#[allow(clippy::module_inception)]
+mod map;
+mod position;
 
-use bevy::prelude::{Component, Resource, Vec3};
-use bevy::utils::{HashMap, HashSet};
-use hex2d::{Coordinate, Direction, Spacing};
-use rand::Rng;
-use std::ops::{Add, Index};
+pub use {
+    map::{Map, Tile},
+    position::Position,
+};
 
-// const MAP_WIDTH: i32 = 49;
-// const MAP_HEIGHT: i32 = 49;
+use {bevy::prelude::*, std::f32::consts::TAU};
 
-const TILE_SPACING: Spacing = Spacing::FlatTop(8.);
+const TILE_RADIUS: f32 = 8.;
 
-#[derive(Clone, Copy, Component, Debug, PartialEq)]
-pub struct Position(Coordinate, f32);
+pub struct MapPlugin;
 
-impl Position {
-    pub fn new(x: i32, y: i32, z: i32) -> Self {
-        Self(Coordinate::new(x, y), z as f32)
+impl Plugin for MapPlugin {
+    fn build(&self, app: &mut App) {
+        let mut rng = rand::thread_rng();
+
+        app.insert_resource(Map::new(&mut rng))
+            .add_systems(Startup, draw_map);
     }
 }
 
-impl Add<Direction> for Position {
-    type Output = Position;
+fn draw_map(
+    mut commands: Commands,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut materials: ResMut<Assets<ColorMaterial>>,
+    map: Res<Map>,
+) {
+    let hexagon = meshes.add(shape::RegularPolygon::new(TILE_RADIUS, 6).into());
 
-    fn add(self, dir: Direction) -> Self::Output {
-        Self(self.0 + dir, self.1)
-    }
-}
+    let floor_color = materials.add(ColorMaterial::from(Color::DARK_GRAY));
+    let wall_color = materials.add(ColorMaterial::from(Color::GRAY));
 
-impl From<Position> for Vec3 {
-    fn from(Position(coord, z): Position) -> Self {
-        let (x, y) = coord.to_pixel(TILE_SPACING);
-
-        Vec3::new(x, y, z)
-    }
-}
-
-#[derive(Clone, Copy, Debug, PartialEq)]
-pub enum Tile {
-    Floor,
-    Wall,
-}
-
-impl Tile {
-    pub fn is_blocked(&self) -> bool {
-        self == &Tile::Wall
-    }
-}
-
-#[derive(Resource)]
-pub struct Map {
-    tiles: HashMap<Coordinate, Tile>,
-    _revealed: HashSet<Coordinate>,
-}
-
-impl Map {
-    pub fn new(rng: &mut impl Rng) -> Self {
-        Self {
-            tiles: bisection_generator::build(24, rng),
-            _revealed: HashSet::new(),
-        }
-    }
-
-    pub fn visible_tiles(&self) -> impl Iterator<Item = (Position, &Tile)> {
-        self.tiles
-            .iter()
-            .map(|(coord, tile)| (Position(*coord, 0.), tile))
-    }
-}
-
-impl Index<&Position> for Map {
-    type Output = Tile;
-
-    fn index(&self, Position(coord, _): &Position) -> &Tile {
-        self.tiles.get(coord).unwrap_or(&Tile::Floor)
-    }
+    commands.spawn_batch(
+        map.visible_tiles()
+            .map(|(pos, tile)| ColorMesh2dBundle {
+                mesh: hexagon.clone().into(),
+                material: match tile {
+                    Tile::Floor => floor_color.clone(),
+                    Tile::Wall => wall_color.clone(),
+                },
+                transform: Transform {
+                    translation: pos.into(),
+                    rotation: Quat::from_rotation_z(TAU / 12.),
+                    ..default()
+                },
+                ..default()
+            })
+            .collect::<Vec<_>>(),
+    );
 }
