@@ -7,9 +7,9 @@ pub use {
     position::Position,
 };
 
-use {bevy::prelude::*, std::f32::consts::TAU};
+use {crate::assets::HexagonMesh, bevy::prelude::*, field_of_view::calculate_field_of_view};
 
-const TILE_RADIUS: f32 = 8.;
+pub const TILE_RADIUS: f32 = 8.;
 
 pub struct LevelPlugin;
 
@@ -24,12 +24,10 @@ impl Plugin for LevelPlugin {
 
 fn draw_map_tiles(
     mut commands: Commands,
-    mut meshes: ResMut<Assets<Mesh>>,
+    hexagon: Res<HexagonMesh>,
     mut materials: ResMut<Assets<ColorMaterial>>,
     map: Res<Map>,
 ) {
-    let hexagon = meshes.add(shape::RegularPolygon::new(TILE_RADIUS, 6).into());
-
     let floor_color = materials.add(ColorMaterial::from(Color::DARK_GRAY));
     let wall_color = materials.add(ColorMaterial::from(Color::GRAY));
 
@@ -43,7 +41,7 @@ fn draw_map_tiles(
                 },
                 transform: Transform {
                     translation: pos.into(),
-                    rotation: Quat::from_rotation_z(TAU / 12.),
+                    rotation: HexagonMesh::ROTATION,
                     ..default()
                 },
                 ..default()

@@ -3,10 +3,7 @@ mod level;
 mod movement;
 mod player;
 
-use {
-    crate::assets::TextSprite,
-    bevy::{log::LogPlugin, prelude::*},
-};
+use bevy::{log::LogPlugin, prelude::*};
 
 // const TERM_WIDTH: i32 = 80;
 // const TERM_HEIGHT: i32 = 50;
@@ -29,11 +26,11 @@ fn main() {
                 })
                 // don't alias pixel art
                 .set(ImagePlugin::default_nearest()),
+            assets::AssetsPlugin,
             level::LevelPlugin,
             movement::MovementPlugin,
             player::PlayerPlugin,
         ))
-        .init_resource::<TextSprite>()
         .insert_resource(ClearColor(Color::BLACK))
         .add_systems(Startup, |mut commands: Commands| {
             commands.spawn(Camera2dBundle::default());

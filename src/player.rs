@@ -17,12 +17,33 @@ impl Plugin for PlayerPlugin {
 #[derive(Component)]
 struct Player;
 
+#[derive(Bundle)]
+struct PlayerBundle {
+    marker: Player,
+    position: Position,
+    sprite: SpriteSheetBundle,
+}
+
+impl PlayerBundle {
+    fn new(text_sprite: TextSprite) -> Self {
+        PlayerBundle {
+            marker: Player,
+            position: Position::new(0, 0, 1),
+            sprite: SpriteSheetBundle {
+                texture_atlas: text_sprite.into(),
+                sprite: TextureAtlasSprite {
+                    index: TextSprite::char_index('@'),
+                    color: Color::YELLOW,
+                    ..default()
+                },
+                ..default()
+            },
+        }
+    }
+}
+
 fn spawn(mut commands: Commands, text_sprite: Res<TextSprite>) {
-    commands.spawn((
-        Player,
-        Position::new(0, 0, 1),
-        text_sprite.bundle('@', Color::YELLOW),
-    ));
+    commands.spawn(PlayerBundle::new(text_sprite.clone()));
 }
 
 fn keyboard_input(
