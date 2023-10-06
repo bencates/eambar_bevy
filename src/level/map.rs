@@ -17,7 +17,17 @@ pub enum Tile {
 
 impl Tile {
     pub fn is_blocked(&self) -> bool {
-        self == &Tile::Wall
+        match self {
+            Tile::Wall => true,
+            Tile::Floor => false,
+        }
+    }
+
+    pub fn is_opaque(&self) -> bool {
+        match self {
+            Tile::Wall => true,
+            Tile::Floor => false,
+        }
     }
 }
 
@@ -46,6 +56,14 @@ impl Index<&Position> for Map {
     type Output = Tile;
 
     fn index(&self, pos: &Position) -> &Tile {
-        self.tiles.get(pos.as_ref()).unwrap_or(&Tile::Floor)
+        &self[pos.as_ref()]
+    }
+}
+
+impl Index<&Coordinate> for Map {
+    type Output = Tile;
+
+    fn index(&self, coord: &Coordinate) -> &Tile {
+        self.tiles.get(coord).unwrap_or(&Tile::Floor)
     }
 }

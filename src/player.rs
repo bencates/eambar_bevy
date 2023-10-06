@@ -1,5 +1,9 @@
 use {
-    crate::{assets::TextSprite, level::Position, movement::MoveEvent},
+    crate::{
+        assets::TextSprite,
+        level::{Position, Viewshed},
+        movement::MoveEvent,
+    },
     bevy::prelude::*,
     hex2d::Direction::*,
 };
@@ -15,12 +19,13 @@ impl Plugin for PlayerPlugin {
 }
 
 #[derive(Component)]
-struct Player;
+pub struct Player;
 
 #[derive(Bundle)]
 struct PlayerBundle {
     marker: Player,
     position: Position,
+    viewshed: Viewshed,
     sprite: SpriteSheetBundle,
 }
 
@@ -28,7 +33,8 @@ impl PlayerBundle {
     fn new(text_sprite: TextSprite) -> Self {
         PlayerBundle {
             marker: Player,
-            position: Position::new(0, 0, 1),
+            position: Position::new(0, 0, 10),
+            viewshed: Viewshed::new(8),
             sprite: SpriteSheetBundle {
                 texture_atlas: text_sprite.into(),
                 sprite: TextureAtlasSprite {

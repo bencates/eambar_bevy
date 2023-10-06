@@ -1,13 +1,19 @@
 mod bisection_generator;
+mod field_of_view;
 mod map;
 mod position;
 
 pub use {
+    field_of_view::Viewshed,
     map::{Map, Tile},
     position::Position,
 };
 
-use {crate::assets::HexagonMesh, bevy::prelude::*, field_of_view::calculate_field_of_view};
+use {
+    crate::assets::HexagonMesh,
+    bevy::prelude::*,
+    field_of_view::{calculate_field_of_view, highlight_player_viewshed},
+};
 
 pub const TILE_RADIUS: f32 = 8.;
 
@@ -18,7 +24,8 @@ impl Plugin for LevelPlugin {
         let mut rng = rand::thread_rng();
 
         app.insert_resource(Map::new(&mut rng))
-            .add_systems(Startup, draw_map_tiles);
+            .add_systems(Startup, draw_map_tiles)
+            .add_systems(Update, (calculate_field_of_view, highlight_player_viewshed));
     }
 }
 
