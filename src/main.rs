@@ -1,5 +1,5 @@
 mod assets;
-mod map;
+mod level;
 mod movement;
 mod player;
 
@@ -29,7 +29,7 @@ fn main() {
                 })
                 // don't alias pixel art
                 .set(ImagePlugin::default_nearest()),
-            map::MapPlugin,
+            level::LevelPlugin,
             movement::MovementPlugin,
             player::PlayerPlugin,
         ))

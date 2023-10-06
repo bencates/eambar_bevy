@@ -1,5 +1,5 @@
 use {
-    crate::map::{Map, Position},
+    crate::level::{Map, Position},
     bevy::prelude::*,
     hex2d::Direction,
 };

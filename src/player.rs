@@ -1,5 +1,5 @@
 use {
-    crate::{assets::TextSprite, map::Position, movement::MoveEvent},
+    crate::{assets::TextSprite, level::Position, movement::MoveEvent},
     bevy::prelude::*,
     hex2d::Direction::*,
 };

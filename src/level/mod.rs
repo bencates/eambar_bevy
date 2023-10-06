@@ -1,5 +1,4 @@
 mod bisection_generator;
-#[allow(clippy::module_inception)]
 mod map;
 mod position;
 
@@ -12,18 +11,18 @@ use {bevy::prelude::*, std::f32::consts::TAU};
 
 const TILE_RADIUS: f32 = 8.;
 
-pub struct MapPlugin;
+pub struct LevelPlugin;
 
-impl Plugin for MapPlugin {
+impl Plugin for LevelPlugin {
     fn build(&self, app: &mut App) {
         let mut rng = rand::thread_rng();
 
         app.insert_resource(Map::new(&mut rng))
-            .add_systems(Startup, draw_map);
+            .add_systems(Startup, draw_map_tiles);
     }
 }
 
-fn draw_map(
+fn draw_map_tiles(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
