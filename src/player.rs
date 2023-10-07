@@ -2,6 +2,7 @@ use {
     crate::{
         assets::TextSprite,
         level::{attach_to_level, Position, Viewshed},
+        movement::BlocksMovement,
         movement::MoveEvent,
     },
     bevy::prelude::*,
@@ -25,6 +26,7 @@ pub struct Player;
 #[derive(Bundle)]
 struct PlayerBundle {
     marker: Player,
+    blocks_movement: BlocksMovement,
     position: Position,
     viewshed: Viewshed,
     sprite: SpriteSheetBundle,
@@ -34,6 +36,7 @@ impl PlayerBundle {
     fn new(text_sprite: TextSprite) -> Self {
         PlayerBundle {
             marker: Player,
+            blocks_movement: BlocksMovement,
             position: Position::new(0, 0, 10),
             viewshed: Viewshed::new(8),
             sprite: SpriteSheetBundle {

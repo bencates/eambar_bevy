@@ -6,7 +6,7 @@ use {
 
 const TILE_SPACING: Spacing = Spacing::FlatTop(super::TILE_RADIUS);
 
-#[derive(Clone, Copy, Component, Debug, PartialEq)]
+#[derive(Clone, Copy, Component, Debug)]
 pub struct Position(pub(super) Coordinate, f32);
 
 impl Position {
@@ -34,5 +34,11 @@ impl From<Position> for Vec3 {
         let (x, y) = coord.to_pixel(TILE_SPACING);
 
         Vec3::new(x, y, z)
+    }
+}
+
+impl PartialEq for Position {
+    fn eq(&self, other: &Self) -> bool {
+        self.0 == other.0
     }
 }

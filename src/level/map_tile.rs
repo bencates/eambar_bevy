@@ -1,6 +1,6 @@
 use {
     super::{Level, Map, Position, Viewshed},
-    crate::{assets::HexagonMesh, player::Player},
+    crate::{assets::HexagonMesh, movement::BlocksMovement, player::Player},
     bevy::prelude::*,
 };
 
@@ -49,7 +49,7 @@ pub fn draw_map_tiles(
         for (coord, tile) in map.tiles() {
             let pos = Position::new(coord.x, coord.y, 0);
 
-            parent.spawn(MapTileBundle {
+            let mut tile_commands = parent.spawn(MapTileBundle {
                 position: pos,
                 tile: *tile,
                 sprite: ColorMesh2dBundle {
@@ -67,6 +67,10 @@ pub fn draw_map_tiles(
                     ..default()
                 },
             });
+
+            if tile.is_blocked() {
+                tile_commands.insert(BlocksMovement);
+            }
         }
     });
 }

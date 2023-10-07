@@ -1,5 +1,5 @@
 use {
-    super::{Position, Tile},
+    super::Tile,
     bevy::{
         prelude::Resource,
         utils::{HashMap, HashSet},
@@ -33,14 +33,6 @@ impl Map {
 
     pub fn tiles(&self) -> &HashMap<Coordinate, Tile> {
         &self.tiles
-    }
-}
-
-impl Index<&Position> for Map {
-    type Output = Tile;
-
-    fn index(&self, pos: &Position) -> &Tile {
-        &self[pos.as_ref()]
     }
 }
 

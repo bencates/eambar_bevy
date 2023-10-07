@@ -1,8 +1,4 @@
-use {
-    crate::level::{Map, Position},
-    bevy::prelude::*,
-    hex2d::Direction,
-};
+use {crate::level::Position, bevy::prelude::*, hex2d::Direction};
 
 pub struct MovementPlugin;
 
@@ -15,22 +11,25 @@ impl Plugin for MovementPlugin {
     }
 }
 
+#[derive(Component)]
+pub struct BlocksMovement;
+
 #[derive(Debug, Event)]
 pub struct MoveEvent(pub Entity, pub Direction);
 
+#[allow(clippy::type_complexity)]
 fn handle_move_event(
     mut events: EventReader<MoveEvent>,
-    mut query: Query<&mut Position>,
-    map: Res<Map>,
+    mut set: ParamSet<(Query<&mut Position>, Query<&Position, With<BlocksMovement>>)>,
 ) {
     for MoveEvent(entity, dir) in events.iter() {
-        if let Ok(mut pos) = query.get_mut(*entity) {
+        if let Ok(pos) = set.p0().get(*entity) {
             let new_pos = *pos + *dir;
 
-            debug!("new pos: {pos:?}");
+            if set.p1().iter().all(|blocker_pos| *blocker_pos != new_pos) {
+                debug!("new pos: {new_pos:?}");
 
-            if !map[&new_pos].is_blocked() {
-                *pos = new_pos;
+                *set.p0().get_mut(*entity).unwrap() = new_pos;
             }
         }
     }
