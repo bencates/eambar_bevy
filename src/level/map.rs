@@ -1,7 +1,7 @@
 use {
     super::Position,
     bevy::{
-        prelude::Resource,
+        prelude::{Component, Resource},
         utils::{HashMap, HashSet},
     },
     hex2d::Coordinate,
@@ -9,7 +9,7 @@ use {
     std::ops::Index,
 };
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Component, Copy, Debug, PartialEq)]
 pub enum Tile {
     Floor,
     Wall,
@@ -34,20 +34,33 @@ impl Tile {
 #[derive(Resource)]
 pub struct Map {
     tiles: HashMap<Coordinate, Tile>,
-    _revealed: HashSet<Coordinate>,
+    revealed: HashSet<Coordinate>,
 }
 
 impl Map {
     pub fn new(rng: &mut impl Rng) -> Self {
         Self {
             tiles: super::bisection_generator::build(24, rng),
-            _revealed: HashSet::new(),
+            revealed: HashSet::new(),
         }
+    }
+
+    pub(super) fn reveal(&mut self, coords: impl Iterator<Item = Coordinate>) {
+        self.revealed.extend(coords);
+    }
+
+    pub fn revealed(&self) -> &HashSet<Coordinate> {
+        &self.revealed
+    }
+
+    pub fn is_revealed(&self, coord: &Coordinate) -> bool {
+        self.revealed.get(coord).is_some()
     }
 
     pub fn visible_tiles(&self) -> impl Iterator<Item = (Position, &Tile)> {
         self.tiles
             .iter()
+            // .filter(|(coord, _)| self.is_revealed(coord))
             .map(|(coord, tile)| (Position::new(coord.x, coord.y, 0), tile))
     }
 }

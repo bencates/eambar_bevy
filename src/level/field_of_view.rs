@@ -13,7 +13,7 @@ pub struct Viewshed {
 }
 
 #[derive(Component)]
-pub struct ViewshedHighlight;
+pub struct Fog;
 
 impl Viewshed {
     pub fn new(range: i32) -> Self {
@@ -35,7 +35,7 @@ impl Index<&Position> for Viewshed {
     }
 }
 
-pub(crate) fn calculate_field_of_view(
+pub fn calculate_field_of_view(
     mut query: Query<(&Position, &mut Viewshed), Changed<Position>>,
     map: Res<Map>,
 ) {
@@ -57,17 +57,27 @@ pub(crate) fn calculate_field_of_view(
     }
 }
 
-pub(crate) fn highlight_player_viewshed(
+pub fn reveal_visible_map_tiles(
+    player_query: Query<&Viewshed, (With<Player>, Changed<Viewshed>)>,
+    mut map: ResMut<Map>,
+) {
+    if let Ok(viewshed) = player_query.get_single() {
+        map.reveal(viewshed.fov.iter().copied());
+    }
+}
+
+pub fn draw_fog_outside_player_viewshed(
     mut commands: Commands,
     player_query: Query<&Viewshed, (With<Player>, Changed<Viewshed>)>,
     level_query: Query<Entity, With<Level>>,
-    highlight_query: Query<Entity, With<ViewshedHighlight>>,
+    highlight_query: Query<Entity, With<Fog>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
     hexagon: Res<HexagonMesh>,
+    map: Res<Map>,
 ) {
     if let Ok(viewshed) = player_query.get_single() {
         let level = level_query.single();
-        let highlight_color = materials.add(ColorMaterial::from(Color::YELLOW_GREEN.with_a(0.1)));
+        let fog_color = materials.add(ColorMaterial::from(Color::BLACK.with_a(0.4)));
 
         for highlight in &highlight_query {
             commands.entity(level).remove_children(&[highlight]);
@@ -75,13 +85,13 @@ pub(crate) fn highlight_player_viewshed(
         }
 
         commands
-            .spawn((ViewshedHighlight, SpatialBundle::default()))
+            .spawn((Fog, SpatialBundle::default()))
             .set_parent(level)
             .with_children(|parent| {
-                for &coord in viewshed.fov.iter() {
+                for coord in map.revealed().difference(&viewshed.fov) {
                     parent.spawn(ColorMesh2dBundle {
                         mesh: hexagon.clone().into(),
-                        material: highlight_color.clone(),
+                        material: fog_color.clone(),
                         transform: Transform {
                             translation: Position::new(coord.x, coord.y, 1).into(),
                             rotation: HexagonMesh::ROTATION,

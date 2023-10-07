@@ -66,6 +66,10 @@ pub fn build(radius: i32, rng: &mut impl Rng) -> Tiles {
 
     tiles.extend(doors.into_iter().map(|c| (c, Tile::Floor)));
 
+    for coord in ORIGIN.range_iter(radius) {
+        let _ = tiles.try_insert(coord, Tile::Floor);
+    }
+
     tiles
 }
 

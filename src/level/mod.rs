@@ -12,7 +12,9 @@ pub use {
 use {
     crate::{assets::HexagonMesh, player::Player},
     bevy::prelude::*,
-    field_of_view::{calculate_field_of_view, highlight_player_viewshed},
+    field_of_view::{
+        calculate_field_of_view, draw_fog_outside_player_viewshed, reveal_visible_map_tiles,
+    },
 };
 
 pub const TILE_RADIUS: f32 = 8.;
@@ -25,8 +27,15 @@ impl Plugin for LevelPlugin {
 
         app.insert_resource(Map::new(&mut rng))
             .add_systems(Startup, draw_map_tiles)
-            .add_systems(Update, (calculate_field_of_view, highlight_player_viewshed))
-            .add_systems(PostUpdate, center_under_player);
+            .add_systems(
+                Update,
+                (
+                    calculate_field_of_view,
+                    draw_fog_outside_player_viewshed,
+                    reveal_visible_map_tiles,
+                ),
+            )
+            .add_systems(PostUpdate, (show_revealed_tiles, center_under_player));
     }
 }
 
@@ -55,19 +64,24 @@ fn draw_map_tiles(
         ))
         .with_children(|parent| {
             for (pos, tile) in map.visible_tiles() {
-                parent.spawn(ColorMesh2dBundle {
-                    mesh: hexagon.clone().into(),
-                    material: match tile {
-                        Tile::Floor => floor_color.clone(),
-                        Tile::Wall => wall_color.clone(),
-                    },
-                    transform: Transform {
-                        translation: pos.into(),
-                        rotation: HexagonMesh::ROTATION,
+                parent.spawn((
+                    pos,
+                    *tile,
+                    ColorMesh2dBundle {
+                        mesh: hexagon.clone().into(),
+                        material: match tile {
+                            Tile::Floor => floor_color.clone(),
+                            Tile::Wall => wall_color.clone(),
+                        },
+                        transform: Transform {
+                            translation: pos.into(),
+                            rotation: HexagonMesh::ROTATION,
+                            ..default()
+                        },
+                        visibility: Visibility::Hidden,
                         ..default()
                     },
-                    ..default()
-                });
+                ));
             }
         });
 }
@@ -81,6 +95,14 @@ pub fn attach_to_level<Child: Component>(
     let children = child_query.iter().collect::<Vec<_>>();
 
     commands.entity(level).push_children(&children);
+}
+
+fn show_revealed_tiles(map: Res<Map>, mut query: Query<(&Position, &mut Visibility), With<Tile>>) {
+    for (pos, mut visibility) in &mut query {
+        if map.is_revealed(pos.as_ref()) {
+            *visibility = Visibility::Visible;
+        }
+    }
 }
 
 fn center_under_player(
