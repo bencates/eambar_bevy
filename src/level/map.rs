@@ -1,35 +1,13 @@
 use {
-    super::Position,
+    super::{Position, Tile},
     bevy::{
-        prelude::{Component, Resource},
+        prelude::Resource,
         utils::{HashMap, HashSet},
     },
     hex2d::Coordinate,
     rand::Rng,
     std::ops::Index,
 };
-
-#[derive(Clone, Component, Copy, Debug, PartialEq)]
-pub enum Tile {
-    Floor,
-    Wall,
-}
-
-impl Tile {
-    pub fn is_blocked(&self) -> bool {
-        match self {
-            Tile::Wall => true,
-            Tile::Floor => false,
-        }
-    }
-
-    pub fn is_opaque(&self) -> bool {
-        match self {
-            Tile::Wall => true,
-            Tile::Floor => false,
-        }
-    }
-}
 
 #[derive(Resource)]
 pub struct Map {
@@ -53,15 +31,8 @@ impl Map {
         &self.revealed
     }
 
-    pub fn is_revealed(&self, coord: &Coordinate) -> bool {
-        self.revealed.get(coord).is_some()
-    }
-
-    pub fn visible_tiles(&self) -> impl Iterator<Item = (Position, &Tile)> {
-        self.tiles
-            .iter()
-            // .filter(|(coord, _)| self.is_revealed(coord))
-            .map(|(coord, tile)| (Position::new(coord.x, coord.y, 0), tile))
+    pub fn tiles(&self) -> &HashMap<Coordinate, Tile> {
+        &self.tiles
     }
 }
 

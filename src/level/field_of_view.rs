@@ -22,6 +22,10 @@ impl Viewshed {
             range,
         }
     }
+
+    pub fn includes(&self, coord: &Coordinate) -> bool {
+        self.fov.get(coord).is_some()
+    }
 }
 
 impl Index<&Position> for Viewshed {
@@ -57,7 +61,7 @@ pub fn calculate_field_of_view(
     }
 }
 
-pub fn reveal_visible_map_tiles(
+pub fn update_map_visibility(
     player_query: Query<&Viewshed, (With<Player>, Changed<Viewshed>)>,
     mut map: ResMut<Map>,
 ) {
