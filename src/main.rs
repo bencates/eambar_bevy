@@ -5,9 +5,6 @@ mod player;
 
 use bevy::{log::LogPlugin, prelude::*};
 
-// const TERM_WIDTH: i32 = 80;
-// const TERM_HEIGHT: i32 = 50;
-
 fn main() {
     App::new()
         .add_plugins((
@@ -19,7 +16,6 @@ fn main() {
                 .set(WindowPlugin {
                     primary_window: Some(Window {
                         title: "Eambar".to_string(),
-                        resolution: (50. * 16., 50. * 16.).into(),
                         ..default()
                     }),
                     ..default()
@@ -31,7 +27,6 @@ fn main() {
             movement::MovementPlugin,
             player::PlayerPlugin,
         ))
-        .insert_resource(ClearColor(Color::BLACK))
         .add_systems(Startup, |mut commands: Commands| {
             commands.spawn(Camera2dBundle::default());
         })

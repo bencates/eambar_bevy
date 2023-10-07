@@ -1,5 +1,5 @@
 use {
-    super::{Map, Position},
+    super::{Level, Map, Position},
     crate::{assets::HexagonMesh, player::Player},
     bevy::{prelude::*, utils::HashSet},
     hex2d::{Coordinate, Spin, XY},
@@ -60,19 +60,23 @@ pub(crate) fn calculate_field_of_view(
 pub(crate) fn highlight_player_viewshed(
     mut commands: Commands,
     player_query: Query<&Viewshed, (With<Player>, Changed<Viewshed>)>,
+    level_query: Query<Entity, With<Level>>,
     highlight_query: Query<Entity, With<ViewshedHighlight>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
     hexagon: Res<HexagonMesh>,
 ) {
     if let Ok(viewshed) = player_query.get_single() {
+        let level = level_query.single();
         let highlight_color = materials.add(ColorMaterial::from(Color::YELLOW_GREEN.with_a(0.1)));
 
         for highlight in &highlight_query {
-            commands.entity(highlight).despawn_recursive()
+            commands.entity(level).remove_children(&[highlight]);
+            commands.entity(highlight).despawn_recursive();
         }
 
         commands
             .spawn((ViewshedHighlight, SpatialBundle::default()))
+            .set_parent(level)
             .with_children(|parent| {
                 for &coord in viewshed.fov.iter() {
                     parent.spawn(ColorMesh2dBundle {

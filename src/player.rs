@@ -1,7 +1,7 @@
 use {
     crate::{
         assets::TextSprite,
-        level::{Position, Viewshed},
+        level::{attach_to_level, Position, Viewshed},
         movement::MoveEvent,
     },
     bevy::prelude::*,
@@ -14,6 +14,7 @@ impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<MoveEvent>()
             .add_systems(Startup, spawn)
+            .add_systems(PostStartup, attach_to_level::<Player>)
             .add_systems(Update, keyboard_input);
     }
 }
