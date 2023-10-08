@@ -5,7 +5,6 @@ use {
         utils::{HashMap, HashSet},
     },
     hex2d::Coordinate,
-    rand::Rng,
     std::ops::Index,
 };
 
@@ -16,11 +15,16 @@ pub struct Map {
 }
 
 impl Map {
-    pub fn new(rng: &mut impl Rng) -> Self {
+    pub(super) fn new(tiles: HashMap<Coordinate, Tile>) -> Self {
         Self {
-            tiles: super::bisection_generator::build(24, rng),
+            tiles,
             revealed: HashSet::new(),
         }
+    }
+
+    #[allow(dead_code)]
+    pub(super) fn reveal_all(&mut self) {
+        self.revealed.extend(self.tiles.keys());
     }
 
     pub(super) fn reveal(&mut self, coords: impl Iterator<Item = Coordinate>) {

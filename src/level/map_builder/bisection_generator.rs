@@ -1,19 +1,13 @@
-use super::Tile;
-use bevy::utils::HashMap;
+use super::super::Tile;
+use super::{is_blocked, Tiles, ORIGIN};
 use hex2d::{Coordinate, Direction, Direction::*, LineTo, Spin};
 use rand::Rng;
 
-type Tiles = HashMap<Coordinate, Tile>;
-
-const ORIGIN: Coordinate = Coordinate { x: 0, y: 0 };
 const MIN_ROOM_SIZE: i32 = 4;
 
-pub fn build(radius: i32, rng: &mut impl Rng) -> Tiles {
+pub fn run(tiles: &mut Tiles, radius: i32, rng: &mut impl Rng) {
     let radius_cw = ORIGIN.ring_iter(radius, Spin::CW(ZX));
     let radius_ccw = ORIGIN.ring_iter(radius, Spin::CCW(ZX));
-
-    // Start with a ring of walls
-    let mut tiles: Tiles = radius_cw.map(|c| (c, Tile::Wall)).collect();
 
     let x_lines = radius_cw
         .filter(|coord| ORIGIN.distance(*coord + YZ) < radius)
@@ -41,7 +35,7 @@ pub fn build(radius: i32, rng: &mut impl Rng) -> Tiles {
     while !(done.0 && done.1 && done.2) {
         if !done.0 {
             let longest_x_path = longest_path(&tiles, x_lines.clone());
-            match bisect_path(&mut tiles, longest_x_path, &[ZX, XY], rng) {
+            match bisect_path(tiles, longest_x_path, &[ZX, XY], rng) {
                 Some(c) => doors.push(c),
                 None => done.0 = true,
             };
@@ -49,7 +43,7 @@ pub fn build(radius: i32, rng: &mut impl Rng) -> Tiles {
 
         if !done.1 {
             let longest_y_path = longest_path(&tiles, y_lines.clone());
-            match bisect_path(&mut tiles, longest_y_path, &[ZY, XY], rng) {
+            match bisect_path(tiles, longest_y_path, &[ZY, XY], rng) {
                 Some(c) => doors.push(c),
                 None => done.1 = true,
             };
@@ -57,7 +51,7 @@ pub fn build(radius: i32, rng: &mut impl Rng) -> Tiles {
 
         if !done.2 {
             let longest_z_path = longest_path(&tiles, z_lines.clone());
-            match bisect_path(&mut tiles, longest_z_path, &[ZY, ZX], rng) {
+            match bisect_path(tiles, longest_z_path, &[ZY, ZX], rng) {
                 Some(c) => doors.push(c),
                 None => done.2 = true,
             };
@@ -65,16 +59,6 @@ pub fn build(radius: i32, rng: &mut impl Rng) -> Tiles {
     }
 
     tiles.extend(doors.into_iter().map(|c| (c, Tile::Floor)));
-
-    for coord in ORIGIN.range_iter(radius) {
-        let _ = tiles.try_insert(coord, Tile::Floor);
-    }
-
-    tiles
-}
-
-fn is_blocked(tiles: &Tiles, coord: &Coordinate) -> bool {
-    tiles.get(coord).is_some_and(|tile| tile.is_blocked())
 }
 
 fn longest_path(

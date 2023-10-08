@@ -1,6 +1,6 @@
-mod bisection_generator;
 mod field_of_view;
 mod map;
+mod map_builder;
 mod map_tile;
 mod position;
 
@@ -12,6 +12,7 @@ use {
     field_of_view::{
         calculate_field_of_view, draw_fog_outside_player_viewshed, update_map_visibility,
     },
+    map_builder::MapBuilder,
     map_tile::{draw_map_tiles, reveal_visible_map_tiles},
 };
 
@@ -21,9 +22,14 @@ pub struct LevelPlugin;
 
 impl Plugin for LevelPlugin {
     fn build(&self, app: &mut App) {
-        let mut rng = rand::thread_rng();
+        let mut map: Map = MapBuilder::new(rand::thread_rng())
+            .empty_hexagon(24)
+            .run_bisection_generator(24)
+            .into();
 
-        app.insert_resource(Map::new(&mut rng))
+        map.reveal_all();
+
+        app.insert_resource(map)
             .add_systems(Startup, spawn)
             .add_systems(PostStartup, draw_map_tiles)
             .add_systems(

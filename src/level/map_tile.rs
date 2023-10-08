@@ -63,7 +63,10 @@ pub fn draw_map_tiles(
                         rotation: HexagonMesh::ROTATION,
                         ..default()
                     },
-                    visibility: Visibility::Hidden,
+                    visibility: match map.revealed().get(pos.as_ref()) {
+                        Some(_) => Visibility::Visible,
+                        None => Visibility::Hidden,
+                    },
                     ..default()
                 },
             });
