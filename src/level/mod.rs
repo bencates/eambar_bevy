@@ -4,7 +4,12 @@ mod map_builder;
 mod map_tile;
 mod position;
 
-pub use {field_of_view::Viewshed, map::Map, map_tile::Tile, position::Position};
+pub use {
+    field_of_view::Viewshed,
+    map::Map,
+    map_tile::Tile,
+    position::{CompassDirection, Position},
+};
 
 use {
     crate::player::Player,

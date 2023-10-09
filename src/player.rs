@@ -1,12 +1,11 @@
 use {
     crate::{
         assets::TextSprite,
-        level::{attach_to_level, Position, Viewshed},
+        level::{attach_to_level, CompassDirection::*, Position, Viewshed},
         movement::BlocksMovement,
         movement::MoveEvent,
     },
     bevy::prelude::*,
-    hex2d::Direction::*,
 };
 
 pub struct PlayerPlugin;
@@ -61,24 +60,24 @@ fn keyboard_input(
     keys: Res<Input<KeyCode>>,
     mut move_action: EventWriter<MoveEvent>,
 ) {
-    let player = query.single();
+    let player_id = query.single();
 
     if keys.just_pressed(KeyCode::Q) {
-        move_action.send(MoveEvent(player, ZX));
+        move_action.send(MoveEvent(player_id, NorthWest));
     }
     if keys.just_pressed(KeyCode::W) {
-        move_action.send(MoveEvent(player, ZY));
+        move_action.send(MoveEvent(player_id, North));
     }
     if keys.just_pressed(KeyCode::E) {
-        move_action.send(MoveEvent(player, XY));
+        move_action.send(MoveEvent(player_id, NorthEast));
     }
     if keys.just_pressed(KeyCode::A) {
-        move_action.send(MoveEvent(player, YX));
+        move_action.send(MoveEvent(player_id, SouthWest));
     }
     if keys.just_pressed(KeyCode::S) {
-        move_action.send(MoveEvent(player, YZ));
+        move_action.send(MoveEvent(player_id, South));
     }
     if keys.just_pressed(KeyCode::D) {
-        move_action.send(MoveEvent(player, XZ));
+        move_action.send(MoveEvent(player_id, SouthEast));
     }
 }
