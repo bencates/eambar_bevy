@@ -1,5 +1,5 @@
 use {
-    super::{Level, Map, Position, Viewshed},
+    super::{Level, LocationBundle, Map, Position, Viewshed},
     crate::{assets::HexagonMesh, movement::BlocksMovement, player::Player},
     bevy::prelude::*,
 };
@@ -29,7 +29,7 @@ impl Tile {
 #[derive(Bundle)]
 struct MapTileBundle {
     tile: Tile,
-    position: Position,
+    location: LocationBundle,
     sprite: ColorMesh2dBundle,
 }
 
@@ -46,12 +46,13 @@ pub fn draw_map_tiles(
     let wall_color = materials.add(ColorMaterial::from(Color::GRAY));
 
     commands.entity(level).with_children(|parent| {
-        for (coord, tile) in map.tiles() {
-            let pos = Position::new(coord.x, coord.y, 0);
-
+        for (position, &tile) in map.tiles() {
             let mut tile_commands = parent.spawn(MapTileBundle {
-                position: pos,
-                tile: *tile,
+                tile,
+                location: LocationBundle {
+                    position: *position,
+                    z_index: 0.into(),
+                },
                 sprite: ColorMesh2dBundle {
                     mesh: hexagon.clone().into(),
                     material: match tile {
@@ -59,11 +60,10 @@ pub fn draw_map_tiles(
                         Tile::Wall => wall_color.clone(),
                     },
                     transform: Transform {
-                        translation: pos.into(),
                         rotation: HexagonMesh::ROTATION,
                         ..default()
                     },
-                    visibility: match map.revealed().get(pos.as_ref()) {
+                    visibility: match map.revealed().get(position) {
                         Some(_) => Visibility::Visible,
                         None => Visibility::Hidden,
                     },
@@ -84,7 +84,7 @@ pub fn reveal_visible_map_tiles(
 ) {
     if let Ok(viewshed) = player_query.get_single() {
         for (pos, mut visibility) in &mut tiles_query {
-            if viewshed.includes(pos.as_ref()) {
+            if viewshed.includes(pos) {
                 *visibility = Visibility::Visible;
             }
         }

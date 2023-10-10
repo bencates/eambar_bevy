@@ -1,7 +1,7 @@
 use {
     crate::{
         assets::TextSprite,
-        level::{attach_to_level, CompassDirection::*, Position, Viewshed},
+        level::{attach_to_level, CompassDirection::*, LocationBundle, Viewshed},
         movement::BlocksMovement,
         movement::MoveEvent,
     },
@@ -26,7 +26,7 @@ pub struct Player;
 struct PlayerBundle {
     marker: Player,
     blocks_movement: BlocksMovement,
-    position: Position,
+    location: LocationBundle,
     viewshed: Viewshed,
     sprite: SpriteSheetBundle,
 }
@@ -36,7 +36,10 @@ impl PlayerBundle {
         PlayerBundle {
             marker: Player,
             blocks_movement: BlocksMovement,
-            position: Position::new(0, 0, 10),
+            location: LocationBundle {
+                position: (0, 0).into(),
+                z_index: 10.into(),
+            },
             viewshed: Viewshed::new(8),
             sprite: SpriteSheetBundle {
                 texture_atlas: text_sprite.into(),

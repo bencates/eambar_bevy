@@ -1,14 +1,14 @@
 mod field_of_view;
+mod location;
 mod map;
 mod map_builder;
 mod map_tile;
-mod position;
 
 pub use {
     field_of_view::Viewshed,
+    location::{CompassDirection, LocationBundle, Position, ZIndex},
     map::Map,
     map_tile::Tile,
-    position::{CompassDirection, Position},
 };
 
 use {
@@ -17,6 +17,7 @@ use {
     field_of_view::{
         calculate_field_of_view, draw_fog_outside_player_viewshed, update_map_visibility,
     },
+    location::move_to_location,
     map_builder::MapBuilder,
     map_tile::{draw_map_tiles, reveal_visible_map_tiles},
 };
@@ -46,6 +47,7 @@ impl Plugin for LevelPlugin {
                 (
                     update_map_visibility,
                     reveal_visible_map_tiles,
+                    move_to_location,
                     center_under_player,
                 ),
             );
@@ -84,10 +86,10 @@ fn center_under_player(
     mut level_query: Query<&mut Transform, With<Level>>,
 ) {
     if let Ok(player_pos) = player_query.get_single() {
-        let player_coord = player_pos.as_ref();
         let mut level_transform = level_query.single_mut();
 
-        level_transform.translation =
-            Vec3::from(Position::new(-player_coord.x, -player_coord.y, 0)) * level_transform.scale;
+        let (x, y) = player_pos.to_pixel();
+
+        level_transform.translation = Vec3::new(-x, -y, 0.) * level_transform.scale;
     }
 }

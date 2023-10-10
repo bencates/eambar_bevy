@@ -34,7 +34,7 @@ pub fn run(tiles: &mut Tiles, radius: i32, rng: &mut impl Rng) {
 
     while !(done.0 && done.1 && done.2) {
         if !done.0 {
-            let longest_x_path = longest_path(&tiles, x_lines.clone());
+            let longest_x_path = longest_path(tiles, x_lines.clone());
             match bisect_path(tiles, longest_x_path, &[ZX, XY], rng) {
                 Some(c) => doors.push(c),
                 None => done.0 = true,
@@ -42,7 +42,7 @@ pub fn run(tiles: &mut Tiles, radius: i32, rng: &mut impl Rng) {
         }
 
         if !done.1 {
-            let longest_y_path = longest_path(&tiles, y_lines.clone());
+            let longest_y_path = longest_path(tiles, y_lines.clone());
             match bisect_path(tiles, longest_y_path, &[ZY, XY], rng) {
                 Some(c) => doors.push(c),
                 None => done.1 = true,
@@ -50,7 +50,7 @@ pub fn run(tiles: &mut Tiles, radius: i32, rng: &mut impl Rng) {
         }
 
         if !done.2 {
-            let longest_z_path = longest_path(&tiles, z_lines.clone());
+            let longest_z_path = longest_path(tiles, z_lines.clone());
             match bisect_path(tiles, longest_z_path, &[ZY, ZX], rng) {
                 Some(c) => doors.push(c),
                 None => done.2 = true,

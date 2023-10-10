@@ -1,14 +1,13 @@
 use {
-    super::{Level, Map, Position},
+    super::{Level, LocationBundle, Map, Position},
     crate::{assets::HexagonMesh, player::Player},
     bevy::{prelude::*, utils::HashSet},
-    hex2d::{Coordinate, Spin, XY},
     std::ops::Index,
 };
 
 #[derive(Component)]
 pub struct Viewshed {
-    fov: HashSet<Coordinate>,
+    fov: HashSet<Position>,
     range: i32,
 }
 
@@ -23,8 +22,8 @@ impl Viewshed {
         }
     }
 
-    pub fn includes(&self, coord: &Coordinate) -> bool {
-        self.fov.get(coord).is_some()
+    pub fn includes(&self, pos: &Position) -> bool {
+        self.fov.get(pos).is_some()
     }
 }
 
@@ -32,7 +31,7 @@ impl Index<&Position> for Viewshed {
     type Output = bool;
 
     fn index(&self, pos: &Position) -> &bool {
-        match self.fov.contains(pos.as_ref()) {
+        match self.fov.contains(pos) {
             true => &true,
             false => &false,
         }
@@ -44,16 +43,16 @@ pub fn calculate_field_of_view(
     map: Res<Map>,
 ) {
     for (pos, mut viewshed) in &mut query {
-        let center: &Coordinate = pos.as_ref();
+        let center = pos;
 
         viewshed.fov.clear();
 
-        for edge in center.ring_iter(viewshed.range, Spin::CW(XY)) {
-            for (c1, c2) in center.line_to_with_edge_detection_iter(edge) {
-                viewshed.fov.insert(c1);
-                viewshed.fov.insert(c2);
+        for edge in center.ring_iter(viewshed.range) {
+            for (p1, p2) in center.line_to_with_edge_detection_iter(&edge) {
+                viewshed.fov.insert(p1);
+                viewshed.fov.insert(p2);
 
-                if map[&c1].is_opaque() && map[&c2].is_opaque() {
+                if map[&p1].is_opaque() && map[&p2].is_opaque() {
                     break;
                 }
             }
@@ -92,17 +91,22 @@ pub fn draw_fog_outside_player_viewshed(
             .spawn((Fog, SpatialBundle::default()))
             .set_parent(level)
             .with_children(|parent| {
-                for coord in map.revealed().difference(&viewshed.fov) {
-                    parent.spawn(ColorMesh2dBundle {
-                        mesh: hexagon.clone().into(),
-                        material: fog_color.clone(),
-                        transform: Transform {
-                            translation: Position::new(coord.x, coord.y, 1).into(),
-                            rotation: HexagonMesh::ROTATION,
+                for &position in map.revealed().difference(&viewshed.fov) {
+                    parent.spawn((
+                        LocationBundle {
+                            position,
+                            z_index: 1.into(),
+                        },
+                        ColorMesh2dBundle {
+                            mesh: hexagon.clone().into(),
+                            material: fog_color.clone(),
+                            transform: Transform {
+                                rotation: HexagonMesh::ROTATION,
+                                ..default()
+                            },
                             ..default()
                         },
-                        ..default()
-                    });
+                    ));
                 }
             });
     }

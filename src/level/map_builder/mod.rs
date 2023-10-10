@@ -45,7 +45,13 @@ impl<R: Rng> MapBuilder<R> {
 
 impl<R: Rng> From<MapBuilder<R>> for Map {
     fn from(builder: MapBuilder<R>) -> Self {
-        Map::new(builder.tiles)
+        let tiles = builder
+            .tiles
+            .iter()
+            .map(|(&coord, &tile)| (coord.into(), tile))
+            .collect();
+
+        Map::new(tiles)
     }
 }
 
