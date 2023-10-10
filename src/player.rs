@@ -1,6 +1,7 @@
 use {
     crate::{
         assets::TextSprite,
+        character::{CharacterBundle, Name},
         level::{attach_to_level, CompassDirection::*, LocationBundle, Viewshed},
         movement::BlocksMovement,
         movement::MoveEvent,
@@ -12,8 +13,7 @@ pub struct PlayerPlugin;
 
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
-        app.add_event::<MoveEvent>()
-            .add_systems(Startup, spawn)
+        app.add_systems(Startup, spawn)
             .add_systems(PostStartup, attach_to_level::<Player>)
             .add_systems(Update, keyboard_input);
     }
@@ -25,16 +25,14 @@ pub struct Player;
 #[derive(Bundle)]
 struct PlayerBundle {
     marker: Player,
-    blocks_movement: BlocksMovement,
-    location: LocationBundle,
-    viewshed: Viewshed,
-    sprite: SpriteSheetBundle,
+    character: CharacterBundle,
 }
 
-impl PlayerBundle {
-    fn new(text_sprite: TextSprite) -> Self {
-        PlayerBundle {
-            marker: Player,
+fn spawn(mut commands: Commands, text_sprite: Res<TextSprite>) {
+    commands.spawn(PlayerBundle {
+        marker: Player,
+        character: CharacterBundle {
+            name: Name("Player".to_string()),
             blocks_movement: BlocksMovement,
             location: LocationBundle {
                 position: (0, 0).into(),
@@ -42,7 +40,7 @@ impl PlayerBundle {
             },
             viewshed: Viewshed::new(8),
             sprite: SpriteSheetBundle {
-                texture_atlas: text_sprite.into(),
+                texture_atlas: text_sprite.clone().into(),
                 sprite: TextureAtlasSprite {
                     index: TextSprite::char_index('@'),
                     color: Color::YELLOW,
@@ -50,12 +48,8 @@ impl PlayerBundle {
                 },
                 ..default()
             },
-        }
-    }
-}
-
-fn spawn(mut commands: Commands, text_sprite: Res<TextSprite>) {
-    commands.spawn(PlayerBundle::new(text_sprite.clone()));
+        },
+    });
 }
 
 fn keyboard_input(

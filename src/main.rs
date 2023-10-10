@@ -1,5 +1,7 @@
 mod assets;
+mod character;
 mod level;
+mod monster;
 mod movement;
 mod player;
 
@@ -24,6 +26,7 @@ fn main() {
                 .set(ImagePlugin::default_nearest()),
             assets::AssetsPlugin,
             level::LevelPlugin,
+            monster::MonsterPlugin,
             movement::MovementPlugin,
             player::PlayerPlugin,
         ))
