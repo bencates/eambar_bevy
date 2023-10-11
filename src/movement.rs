@@ -1,5 +1,8 @@
 use {
-    crate::level::{CompassDirection, Position},
+    crate::{
+        level::{CompassDirection, Position},
+        ui::LogEvent,
+    },
     bevy::prelude::*,
 };
 
@@ -22,15 +25,16 @@ pub struct MoveEvent(pub Entity, pub CompassDirection);
 fn handle_move_event(
     mut events: EventReader<MoveEvent>,
     mut set: ParamSet<(Query<&mut Position>, Query<&Position, With<BlocksMovement>>)>,
+    mut log: EventWriter<LogEvent>,
 ) {
-    for MoveEvent(entity, dir) in events.iter() {
-        if let Ok(old_pos) = set.p0().get(*entity) {
-            let new_pos = *old_pos + *dir;
+    for &MoveEvent(entity, dir) in events.iter() {
+        if let Ok(&old_pos) = set.p0().get(entity) {
+            let new_pos = old_pos + dir;
 
             if set.p1().iter().all(|blocker_pos| *blocker_pos != new_pos) {
-                debug!("new pos: {new_pos:?}");
+                log.send(LogEvent::Move(entity, dir, new_pos));
 
-                *set.p0().get_mut(*entity).unwrap() = new_pos;
+                *set.p0().get_mut(entity).unwrap() = new_pos;
             }
         }
     }

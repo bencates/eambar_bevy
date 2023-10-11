@@ -1,7 +1,7 @@
 use {
     bevy::prelude::*,
     hex2d::{Coordinate, Direction, Spacing, Spin},
-    std::ops::Add,
+    std::{fmt, ops::Add},
 };
 
 const TILE_SPACING: Spacing = Spacing::FlatTop(super::TILE_RADIUS);
@@ -32,7 +32,7 @@ impl Position {
     pub fn ring_iter(&self, radius: i32) -> impl Iterator<Item = Position> + '_ {
         self.0
             .ring_iter(radius, Spin::CW(Direction::ZY))
-            .map(|c| c.into())
+            .map(Into::into)
     }
 
     pub fn line_to_with_edge_detection_iter(
@@ -46,6 +46,25 @@ impl Position {
 
     pub(super) fn to_pixel(self) -> (f32, f32) {
         self.0.to_pixel(TILE_SPACING)
+    }
+}
+
+impl fmt::Display for Position {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "({}, {}, {})", self.0.x, self.0.y, self.0.z())
+    }
+}
+
+impl fmt::Display for CompassDirection {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(match self {
+            CompassDirection::North => "north",
+            CompassDirection::NorthEast => "north east",
+            CompassDirection::SouthEast => "south east",
+            CompassDirection::South => "south",
+            CompassDirection::SouthWest => "south west",
+            CompassDirection::NorthWest => "north west",
+        })
     }
 }
 

@@ -4,6 +4,7 @@ mod level;
 mod monster;
 mod movement;
 mod player;
+mod ui;
 
 use bevy::{log::LogPlugin, prelude::*};
 
@@ -29,6 +30,7 @@ fn main() {
             monster::MonsterPlugin,
             movement::MovementPlugin,
             player::PlayerPlugin,
+            ui::UIPlugin,
         ))
         .add_systems(Startup, |mut commands: Commands| {
             commands.spawn(Camera2dBundle::default());
