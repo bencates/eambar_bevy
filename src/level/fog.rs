@@ -1,62 +1,7 @@
 use crate::prelude::*;
-use std::ops::Index;
-
-#[derive(Component)]
-pub struct Viewshed {
-    fov: HashSet<Position>,
-    range: i32,
-}
 
 #[derive(Component)]
 pub struct Fog;
-
-impl Viewshed {
-    pub fn new(range: i32) -> Self {
-        Self {
-            fov: HashSet::new(),
-            range,
-        }
-    }
-
-    pub fn includes(&self, pos: &Position) -> bool {
-        self.fov.get(pos).is_some()
-    }
-}
-
-impl Index<&Position> for Viewshed {
-    type Output = bool;
-
-    fn index(&self, pos: &Position) -> &bool {
-        match self.fov.contains(pos) {
-            true => &true,
-            false => &false,
-        }
-    }
-}
-
-pub fn calculate_field_of_view(
-    mut query: Query<(&Position, &mut Viewshed), Changed<Position>>,
-    tiles_query: Query<(&Position, &MapTile)>,
-) {
-    let tiles: HashMap<_, _> = tiles_query.iter().collect();
-
-    for (pos, mut viewshed) in &mut query {
-        let center = pos;
-
-        viewshed.fov.clear();
-
-        for edge in center.ring_iter(viewshed.range) {
-            for (p1, p2) in center.line_to_with_edge_detection_iter(&edge) {
-                viewshed.fov.insert(p1);
-                viewshed.fov.insert(p2);
-
-                if tiles[&p1].is_opaque() && tiles[&p2].is_opaque() {
-                    break;
-                }
-            }
-        }
-    }
-}
 
 pub fn draw_fog_outside_player_viewshed(
     mut commands: Commands,
@@ -74,17 +19,15 @@ pub fn draw_fog_outside_player_viewshed(
             commands.entity(highlight).despawn_recursive();
         }
 
-        let revealed: HashSet<_> = tile_query
-            .iter()
-            .filter(|(_, vis)| vis.is_visible())
-            .map(|(&pos, _)| pos)
-            .collect();
-
         commands
             .spawn((Fog, SpatialBundle::default()))
             .set_parent(level)
             .with_children(|parent| {
-                for &position in revealed.difference(&viewshed.fov) {
+                let revealed_but_not_visible = tile_query
+                    .iter()
+                    .filter(|(pos, vis)| vis.is_visible() && !viewshed.includes(pos));
+
+                for (&position, _) in revealed_but_not_visible {
                     parent.spawn((
                         LocationBundle {
                             position,

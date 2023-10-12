@@ -1,19 +1,15 @@
-mod field_of_view;
+mod fog;
 mod location;
 mod map_builder;
 mod map_tile;
 
 pub use {
-    field_of_view::Viewshed,
     location::{CompassDirection, LocationBundle, Position, ZIndex},
     map_tile::{MapTile, MapTileBundle},
 };
 
 use crate::{bestiary, prelude::*};
-use field_of_view::{calculate_field_of_view, draw_fog_outside_player_viewshed};
-use location::move_to_location;
 use map_builder::MapBuilder;
-use map_tile::reveal_visible_map_tiles;
 
 pub const TILE_RADIUS: f32 = 8.;
 
@@ -22,15 +18,12 @@ pub struct LevelPlugin;
 impl Plugin for LevelPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(Startup, (spawn, attach_to_level::<MapTile>).chain())
-            .add_systems(
-                Update,
-                (calculate_field_of_view, draw_fog_outside_player_viewshed),
-            )
+            .add_systems(Update, fog::draw_fog_outside_player_viewshed)
             .add_systems(
                 PostUpdate,
                 (
-                    reveal_visible_map_tiles,
-                    move_to_location,
+                    map_tile::reveal_visible_map_tiles,
+                    location::move_to_location,
                     center_under_player,
                 ),
             );

@@ -2,8 +2,8 @@ mod assets;
 mod bestiary;
 mod character;
 mod level;
-mod movement;
 mod player;
+mod rulebook;
 mod spawn_table;
 mod ui;
 
@@ -20,12 +20,12 @@ mod prelude {
     // components
     pub use crate::character::{Character, Name};
     // pub use crate::level::Fog;
-    pub use crate::level::{Level, MapTile, Position, Viewshed, ZIndex};
-    pub use crate::movement::BlocksMovement;
+    pub use crate::level::{Level, MapTile, Position, ZIndex};
     pub use crate::player::Player;
+    pub use crate::rulebook::{BlocksMovement, Viewshed};
 
     // events
-    pub use crate::movement::MoveEvent;
+    pub use crate::rulebook::MoveEvent;
     pub use crate::ui::LogEvent;
 
     //resources
@@ -42,7 +42,7 @@ use prelude::*;
 
 fn main() {
     App::new()
-        .add_plugins((
+        .add_plugins(
             DefaultPlugins
                 .set(LogPlugin {
                     filter: "eambar=trace,wgpu=warn".to_string(),
@@ -57,10 +57,12 @@ fn main() {
                 })
                 // don't alias pixel art
                 .set(ImagePlugin::default_nearest()),
+        )
+        .add_plugins((
             assets::AssetsPlugin,
             level::LevelPlugin,
+            rulebook::RulebookPlugin,
             character::CharacterPlugin,
-            movement::MovementPlugin,
             player::PlayerPlugin,
             ui::UIPlugin,
         ))

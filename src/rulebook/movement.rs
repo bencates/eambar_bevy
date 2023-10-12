@@ -1,14 +1,5 @@
 use crate::prelude::*;
 
-pub struct MovementPlugin;
-
-impl Plugin for MovementPlugin {
-    fn build(&self, app: &mut App) {
-        app.add_event::<MoveEvent>()
-            .add_systems(Update, handle_move_event);
-    }
-}
-
 #[derive(Component)]
 pub struct BlocksMovement;
 
@@ -16,7 +7,7 @@ pub struct BlocksMovement;
 pub struct MoveEvent(pub Entity, pub CompassDirection);
 
 #[allow(clippy::type_complexity)]
-fn handle_move_event(
+pub(super) fn handle_move_event(
     mut events: EventReader<MoveEvent>,
     mut set: ParamSet<(Query<&mut Position>, Query<&Position, With<BlocksMovement>>)>,
     mut log: EventWriter<LogEvent>,
