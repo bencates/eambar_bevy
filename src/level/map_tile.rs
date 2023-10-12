@@ -1,91 +1,71 @@
 use {
-    super::{Level, LocationBundle, Map, Position, Viewshed},
-    crate::{assets::HexagonMesh, movement::BlocksMovement, player::Player},
+    super::{LocationBundle, Position, Viewshed},
+    crate::{assets::MapAssets, player::Player},
     bevy::prelude::*,
 };
 
 #[derive(Clone, Component, Copy, Debug, PartialEq)]
-pub enum Tile {
+pub enum MapTile {
     Floor,
     Wall,
 }
 
-impl Tile {
+impl MapTile {
     pub fn is_blocked(&self) -> bool {
         match self {
-            Tile::Wall => true,
-            Tile::Floor => false,
+            MapTile::Wall => true,
+            MapTile::Floor => false,
         }
     }
 
     pub fn is_opaque(&self) -> bool {
         match self {
-            Tile::Wall => true,
-            Tile::Floor => false,
+            MapTile::Wall => true,
+            MapTile::Floor => false,
         }
     }
 }
 
 #[derive(Bundle)]
-struct MapTileBundle {
-    tile: Tile,
+pub struct MapTileBundle {
+    tile: MapTile,
     location: LocationBundle,
     sprite: ColorMesh2dBundle,
 }
 
-pub fn draw_map_tiles(
-    mut commands: Commands,
-    level_query: Query<Entity, With<Level>>,
-    hexagon: Res<HexagonMesh>,
-    mut materials: ResMut<Assets<ColorMaterial>>,
-    map: Res<Map>,
-) {
-    let level = level_query.single();
-
-    let floor_color = materials.add(ColorMaterial::from(Color::DARK_GRAY));
-    let wall_color = materials.add(ColorMaterial::from(Color::GRAY));
-
-    commands.entity(level).with_children(|parent| {
-        for (position, &tile) in map.tiles() {
-            let mut tile_commands = parent.spawn(MapTileBundle {
-                tile,
-                location: LocationBundle {
-                    position: *position,
-                    z_index: 0.into(),
+impl MapTileBundle {
+    pub fn new(tile: MapTile, position: Position, assets: &MapAssets) -> Self {
+        MapTileBundle {
+            tile,
+            location: LocationBundle {
+                position,
+                z_index: 0.into(),
+            },
+            sprite: ColorMesh2dBundle {
+                mesh: assets.hexagon.clone(),
+                material: match tile {
+                    MapTile::Floor => assets.floor_color.clone(),
+                    MapTile::Wall => assets.wall_color.clone(),
                 },
-                sprite: ColorMesh2dBundle {
-                    mesh: hexagon.clone().into(),
-                    material: match tile {
-                        Tile::Floor => floor_color.clone(),
-                        Tile::Wall => wall_color.clone(),
-                    },
-                    transform: Transform {
-                        rotation: HexagonMesh::ROTATION,
-                        ..default()
-                    },
-                    visibility: match map.revealed().get(position) {
-                        Some(_) => Visibility::Visible,
-                        None => Visibility::Hidden,
-                    },
+                transform: Transform {
+                    rotation: MapAssets::HEX_ROTATION,
                     ..default()
                 },
-            });
-
-            if tile.is_blocked() {
-                tile_commands.insert(BlocksMovement);
-            }
+                visibility: Visibility::Hidden,
+                ..default()
+            },
         }
-    });
+    }
 }
 
 pub fn reveal_visible_map_tiles(
     player_query: Query<&Viewshed, (With<Player>, Changed<Viewshed>)>,
-    mut tiles_query: Query<(&Position, &mut Visibility), With<Tile>>,
+    mut tiles_query: Query<(&Position, &mut Visibility), With<MapTile>>,
 ) {
     if let Ok(viewshed) = player_query.get_single() {
         for (pos, mut visibility) in &mut tiles_query {
             if viewshed.includes(pos) {
-                *visibility = Visibility::Visible;
+                *visibility = Visibility::default();
             }
         }
     }

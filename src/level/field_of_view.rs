@@ -1,7 +1,10 @@
 use {
-    super::{Level, LocationBundle, Map, Position},
-    crate::{assets::HexagonMesh, player::Player},
-    bevy::{prelude::*, utils::HashSet},
+    super::{Level, LocationBundle, MapTile, Position},
+    crate::{assets::MapAssets, player::Player},
+    bevy::{
+        prelude::*,
+        utils::{HashMap, HashSet},
+    },
     std::ops::Index,
 };
 
@@ -40,8 +43,10 @@ impl Index<&Position> for Viewshed {
 
 pub fn calculate_field_of_view(
     mut query: Query<(&Position, &mut Viewshed), Changed<Position>>,
-    map: Res<Map>,
+    tiles_query: Query<(&Position, &MapTile)>,
 ) {
+    let tiles: HashMap<_, _> = tiles_query.iter().collect();
+
     for (pos, mut viewshed) in &mut query {
         let center = pos;
 
@@ -52,7 +57,7 @@ pub fn calculate_field_of_view(
                 viewshed.fov.insert(p1);
                 viewshed.fov.insert(p2);
 
-                if map[&p1].is_opaque() && map[&p2].is_opaque() {
+                if tiles[&p1].is_opaque() && tiles[&p2].is_opaque() {
                     break;
                 }
             }
@@ -60,48 +65,43 @@ pub fn calculate_field_of_view(
     }
 }
 
-pub fn update_map_visibility(
-    player_query: Query<&Viewshed, (With<Player>, Changed<Viewshed>)>,
-    mut map: ResMut<Map>,
-) {
-    if let Ok(viewshed) = player_query.get_single() {
-        map.reveal(viewshed.fov.iter().copied());
-    }
-}
-
 pub fn draw_fog_outside_player_viewshed(
     mut commands: Commands,
     player_query: Query<&Viewshed, (With<Player>, Changed<Viewshed>)>,
     level_query: Query<Entity, With<Level>>,
+    tile_query: Query<(&Position, &ComputedVisibility), With<MapTile>>,
     highlight_query: Query<Entity, With<Fog>>,
-    mut materials: ResMut<Assets<ColorMaterial>>,
-    hexagon: Res<HexagonMesh>,
-    map: Res<Map>,
+    assets: Res<MapAssets>,
 ) {
     if let Ok(viewshed) = player_query.get_single() {
         let level = level_query.single();
-        let fog_color = materials.add(ColorMaterial::from(Color::BLACK.with_a(0.4)));
 
         for highlight in &highlight_query {
             commands.entity(level).remove_children(&[highlight]);
             commands.entity(highlight).despawn_recursive();
         }
 
+        let revealed: HashSet<_> = tile_query
+            .iter()
+            .filter(|(_, vis)| vis.is_visible())
+            .map(|(&pos, _)| pos)
+            .collect();
+
         commands
             .spawn((Fog, SpatialBundle::default()))
             .set_parent(level)
             .with_children(|parent| {
-                for &position in map.revealed().difference(&viewshed.fov) {
+                for &position in revealed.difference(&viewshed.fov) {
                     parent.spawn((
                         LocationBundle {
                             position,
                             z_index: 1.into(),
                         },
                         ColorMesh2dBundle {
-                            mesh: hexagon.clone().into(),
-                            material: fog_color.clone(),
+                            mesh: assets.hexagon.clone(),
+                            material: assets.fog_color.clone(),
                             transform: Transform {
-                                rotation: HexagonMesh::ROTATION,
+                                rotation: MapAssets::HEX_ROTATION,
                                 ..default()
                             },
                             ..default()

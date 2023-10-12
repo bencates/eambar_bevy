@@ -10,7 +10,7 @@ pub struct AssetsPlugin;
 impl Plugin for AssetsPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<TextSprite>()
-            .init_resource::<HexagonMesh>();
+            .init_resource::<MapAssets>();
     }
 }
 
@@ -320,26 +320,36 @@ impl From<TextSprite> for Handle<TextureAtlas> {
     }
 }
 
-#[derive(Clone, Resource)]
-pub struct HexagonMesh(Handle<Mesh>);
+#[derive(Resource)]
+pub struct MapAssets {
+    pub hexagon: Mesh2dHandle,
+    pub floor_color: Handle<ColorMaterial>,
+    pub wall_color: Handle<ColorMaterial>,
+    pub fog_color: Handle<ColorMaterial>,
+}
 
-impl FromWorld for HexagonMesh {
+impl FromWorld for MapAssets {
     fn from_world(world: &mut World) -> Self {
         let hexagon = world
             .resource_mut::<Assets<_>>()
             .add(RegularPolygon::new(TILE_RADIUS, 6).into());
 
-        Self(hexagon)
+        let mut materials = world.resource_mut::<Assets<_>>();
+
+        let floor_color = materials.add(ColorMaterial::from(Color::DARK_GRAY));
+        let wall_color = materials.add(ColorMaterial::from(Color::GRAY));
+        let fog_color = materials.add(ColorMaterial::from(Color::BLACK.with_a(0.4)));
+
+        Self {
+            hexagon: hexagon.into(),
+            floor_color,
+            wall_color,
+            fog_color,
+        }
     }
 }
 
-impl HexagonMesh {
+impl MapAssets {
     /// 30° around the z axis, i.e. from pointy-top to flat-top
-    pub const ROTATION: Quat = Quat::from_xyzw(0.0, 0.0, 0.25881904, 0.9659258);
-}
-
-impl From<HexagonMesh> for Mesh2dHandle {
-    fn from(hex: HexagonMesh) -> Mesh2dHandle {
-        hex.0.into()
-    }
+    pub const HEX_ROTATION: Quat = Quat::from_xyzw(0.0, 0.0, 0.25881904, 0.9659258);
 }

@@ -1,13 +1,14 @@
 mod bisection_generator;
+mod spawner;
 
 use {
-    super::{Map, Tile},
-    bevy::utils::HashMap,
+    super::MapTile,
+    bevy::{prelude::World, utils::HashMap},
     hex2d::{Coordinate, Direction::*, Spin},
     rand::prelude::*,
 };
 
-type Tiles = HashMap<Coordinate, Tile>;
+type Tiles = HashMap<Coordinate, MapTile>;
 
 const ORIGIN: Coordinate = Coordinate { x: 0, y: 0 };
 
@@ -27,11 +28,11 @@ impl<R: Rng> MapBuilder<R> {
     pub fn empty_hexagon(mut self, radius: i32) -> Self {
         self.tiles = ORIGIN
             .ring_iter(radius, Spin::CW(ZX))
-            .map(|c| (c, Tile::Wall))
+            .map(|c| (c, MapTile::Wall))
             .collect();
 
         self.tiles
-            .extend(ORIGIN.range_iter(radius - 1).map(|c| (c, Tile::Floor)));
+            .extend(ORIGIN.range_iter(radius - 1).map(|c| (c, MapTile::Floor)));
 
         self
     }
@@ -41,17 +42,9 @@ impl<R: Rng> MapBuilder<R> {
 
         self
     }
-}
 
-impl<R: Rng> From<MapBuilder<R>> for Map {
-    fn from(builder: MapBuilder<R>) -> Self {
-        let tiles = builder
-            .tiles
-            .iter()
-            .map(|(&coord, &tile)| (coord.into(), tile))
-            .collect();
-
-        Map::new(tiles)
+    pub fn spawn(self, world: &mut World) {
+        let _tiles = spawner::spawn_map_tiles(&self.tiles, world);
     }
 }
 

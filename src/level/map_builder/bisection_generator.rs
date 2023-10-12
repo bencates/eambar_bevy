@@ -1,11 +1,11 @@
-use super::super::Tile;
+use super::super::MapTile;
 use super::{is_blocked, Tiles, ORIGIN};
 use hex2d::{Coordinate, Direction, Direction::*, LineTo, Spin};
 use rand::Rng;
 
 const MIN_ROOM_SIZE: i32 = 4;
 
-pub fn run(tiles: &mut Tiles, radius: i32, rng: &mut impl Rng) {
+pub(super) fn run(tiles: &mut Tiles, radius: i32, rng: &mut impl Rng) {
     let radius_cw = ORIGIN.ring_iter(radius, Spin::CW(ZX));
     let radius_ccw = ORIGIN.ring_iter(radius, Spin::CCW(ZX));
 
@@ -58,7 +58,7 @@ pub fn run(tiles: &mut Tiles, radius: i32, rng: &mut impl Rng) {
         }
     }
 
-    tiles.extend(doors.into_iter().map(|c| (c, Tile::Floor)));
+    tiles.extend(doors.into_iter().map(|c| (c, MapTile::Floor)));
 }
 
 fn longest_path(
@@ -107,17 +107,17 @@ fn bisect_path(
         if let Some(center) = c1.line_to_iter(c2).nth(offset as usize) {
             let dir = axes[rng.gen_range(0..axes.len())];
 
-            tiles.insert(center, Tile::Wall);
+            tiles.insert(center, MapTile::Wall);
 
             let mut coord = center - dir;
             while !is_blocked(tiles, &coord) {
-                tiles.insert(coord, Tile::Wall);
+                tiles.insert(coord, MapTile::Wall);
                 coord = coord - dir;
             }
 
             coord = center + dir;
             while !is_blocked(tiles, &coord) {
-                tiles.insert(coord, Tile::Wall);
+                tiles.insert(coord, MapTile::Wall);
                 coord = coord + dir;
             }
 
