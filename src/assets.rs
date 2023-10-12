@@ -37,7 +37,19 @@ impl FromWorld for TextSprite {
 }
 
 impl TextSprite {
-    pub fn char_index(c: char) -> usize {
+    pub fn build(&self, sprite: char, color: Color) -> SpriteSheetBundle {
+        SpriteSheetBundle {
+            texture_atlas: self.0.clone(),
+            sprite: TextureAtlasSprite {
+                index: TextSprite::char_index(sprite),
+                color,
+                ..default()
+            },
+            ..default()
+        }
+    }
+
+    fn char_index(c: char) -> usize {
         match c {
             '☺' => 1,
             '☻' => 2,

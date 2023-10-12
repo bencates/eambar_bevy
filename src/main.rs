@@ -1,9 +1,10 @@
 mod assets;
+mod bestiary;
 mod character;
 mod level;
-mod monster;
 mod movement;
 mod player;
+mod spawn_table;
 mod ui;
 
 use bevy::{log::LogPlugin, prelude::*};
@@ -27,7 +28,7 @@ fn main() {
                 .set(ImagePlugin::default_nearest()),
             assets::AssetsPlugin,
             level::LevelPlugin,
-            monster::MonsterPlugin,
+            character::CharacterPlugin,
             movement::MovementPlugin,
             player::PlayerPlugin,
             ui::UIPlugin,

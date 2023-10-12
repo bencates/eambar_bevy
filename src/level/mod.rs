@@ -10,7 +10,7 @@ pub use {
 };
 
 use {
-    crate::player::Player,
+    crate::{bestiary, player::Player},
     bevy::prelude::*,
     field_of_view::{calculate_field_of_view, draw_fog_outside_player_viewshed},
     location::move_to_location,
@@ -55,10 +55,16 @@ fn spawn(world: &mut World) {
         },
     ));
 
-    MapBuilder::new(rand::thread_rng())
-        .empty_hexagon(24)
-        .run_bisection_generator(24)
-        .spawn(world);
+    MapBuilder::new(
+        rand::thread_rng(),
+        &[
+            (75, bestiary::infected_crewmember),
+            (25, bestiary::alien_hatchling),
+        ],
+    )
+    .empty_hexagon(24)
+    .run_bisection_generator(24)
+    .spawn(world);
 }
 
 pub fn attach_to_level<Child: Component>(

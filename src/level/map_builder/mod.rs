@@ -3,6 +3,7 @@ mod spawner;
 
 use {
     super::MapTile,
+    crate::spawn_table::{SpawnFn, SpawnTable},
     bevy::{prelude::World, utils::HashMap},
     hex2d::{Coordinate, Direction::*, Spin},
     rand::prelude::*,
@@ -13,15 +14,21 @@ type Tiles = HashMap<Coordinate, MapTile>;
 const ORIGIN: Coordinate = Coordinate { x: 0, y: 0 };
 
 pub struct MapBuilder<R: Rng> {
-    tiles: Tiles,
     rng: R,
+    tiles: Tiles,
+    player_origin: Option<Coordinate>,
+    spawn_points: Vec<Coordinate>,
+    spawn_table: SpawnTable,
 }
 
 impl<R: Rng> MapBuilder<R> {
-    pub fn new(rng: R) -> Self {
+    pub fn new(rng: R, spawn_table: &[(i32, SpawnFn)]) -> Self {
         Self {
-            tiles: HashMap::new(),
             rng,
+            tiles: HashMap::new(),
+            player_origin: Some((0, 0).into()),
+            spawn_points: vec![(0, -2).into(), (2, 0).into(), (-2, 2).into()],
+            spawn_table: SpawnTable::new(spawn_table),
         }
     }
 
@@ -43,8 +50,17 @@ impl<R: Rng> MapBuilder<R> {
         self
     }
 
-    pub fn spawn(self, world: &mut World) {
-        let _tiles = spawner::spawn_map_tiles(&self.tiles, world);
+    pub fn spawn(mut self, world: &mut World) {
+        let _tile_ids = spawner::spawn_map_tiles(&self.tiles, world);
+
+        if let Some(coord) = self.player_origin {
+            let _player_id = spawner::spawn_player(coord, world);
+        }
+
+        for coord in self.spawn_points {
+            let builder = self.spawn_table.sample(&mut self.rng);
+            let _monster_id = spawner::spawn_monster(coord, builder, world);
+        }
     }
 }
 

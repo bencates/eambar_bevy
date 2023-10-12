@@ -1,10 +1,9 @@
 use {
     crate::{
         assets::TextSprite,
-        character::{CharacterBundle, Name},
-        level::{attach_to_level, CompassDirection::*, LocationBundle, Viewshed},
-        movement::BlocksMovement,
-        movement::MoveEvent,
+        character::{Character, CharacterBundle, Name},
+        level::{attach_to_level, CompassDirection::*, Viewshed},
+        movement::{BlocksMovement, MoveEvent},
     },
     bevy::prelude::*,
 };
@@ -13,8 +12,7 @@ pub struct PlayerPlugin;
 
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Startup, spawn)
-            .add_systems(PostStartup, attach_to_level::<Player>)
+        app.add_systems(PostStartup, attach_to_level::<Player>)
             .add_systems(Update, keyboard_input);
     }
 }
@@ -23,33 +21,24 @@ impl Plugin for PlayerPlugin {
 pub struct Player;
 
 #[derive(Bundle)]
-struct PlayerBundle {
+pub struct PlayerBundle {
     marker: Player,
     character: CharacterBundle,
 }
 
-fn spawn(mut commands: Commands, text_sprite: Res<TextSprite>) {
-    commands.spawn(PlayerBundle {
-        marker: Player,
-        character: CharacterBundle {
-            name: Name("Player".to_string()),
-            blocks_movement: BlocksMovement,
-            location: LocationBundle {
-                position: (0, 0).into(),
-                z_index: 10.into(),
+impl PlayerBundle {
+    pub fn new(text_sprite: &TextSprite) -> PlayerBundle {
+        PlayerBundle {
+            marker: Player,
+            character: CharacterBundle {
+                marker: Character::Player,
+                name: Name("Player".to_string()),
+                blocks_movement: BlocksMovement,
+                viewshed: Viewshed::new(8),
+                sprite: text_sprite.build('@', Color::YELLOW),
             },
-            viewshed: Viewshed::new(8),
-            sprite: SpriteSheetBundle {
-                texture_atlas: text_sprite.clone().into(),
-                sprite: TextureAtlasSprite {
-                    index: TextSprite::char_index('@'),
-                    color: Color::YELLOW,
-                    ..default()
-                },
-                ..default()
-            },
-        },
-    });
+        }
+    }
 }
 
 fn keyboard_input(
