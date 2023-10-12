@@ -1,7 +1,7 @@
-use super::super::MapTile;
 use super::{is_blocked, Tiles, ORIGIN};
+use crate::prelude::MapTile;
 use hex2d::{Coordinate, Direction, Direction::*, LineTo, Spin};
-use rand::Rng;
+use rand::prelude::Rng;
 
 const MIN_ROOM_SIZE: i32 = 4;
 

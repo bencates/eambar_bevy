@@ -1,8 +1,6 @@
-use {
-    bevy::prelude::*,
-    hex2d::{Coordinate, Direction, Spacing, Spin},
-    std::{fmt, ops::Add},
-};
+use bevy::prelude::*;
+use hex2d::{Coordinate, Direction, Spacing, Spin};
+use std::{fmt, ops::Add};
 
 const TILE_SPACING: Spacing = Spacing::FlatTop(super::TILE_RADIUS);
 

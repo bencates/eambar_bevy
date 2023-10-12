@@ -1,11 +1,4 @@
-use {
-    super::UI,
-    crate::{
-        character::Name,
-        level::{CompassDirection, Position},
-    },
-    bevy::prelude::*,
-};
+use crate::prelude::*;
 
 #[derive(Component)]
 pub struct LogWindowNode;

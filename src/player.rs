@@ -1,12 +1,4 @@
-use {
-    crate::{
-        assets::TextSprite,
-        character::{Character, CharacterBundle, Name},
-        level::{attach_to_level, CompassDirection::*, Viewshed},
-        movement::{BlocksMovement, MoveEvent},
-    },
-    bevy::prelude::*,
-};
+use crate::{level::attach_to_level, prelude::*};
 
 pub struct PlayerPlugin;
 

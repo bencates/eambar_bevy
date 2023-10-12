@@ -1,13 +1,4 @@
-use crate::level::Viewshed;
-
-use {
-    crate::{
-        assets::TextSprite,
-        character::{Character, CharacterBundle, Name},
-        movement::BlocksMovement,
-    },
-    bevy::prelude::*,
-};
+use crate::prelude::*;
 
 pub fn infected_crewmember(text_sprite: &TextSprite) -> CharacterBundle {
     CharacterBundle {

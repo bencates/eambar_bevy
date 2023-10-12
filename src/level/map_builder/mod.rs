@@ -1,13 +1,8 @@
 mod bisection_generator;
 mod spawner;
 
-use {
-    super::MapTile,
-    crate::spawn_table::{SpawnFn, SpawnTable},
-    bevy::{prelude::World, utils::HashMap},
-    hex2d::{Coordinate, Direction::*, Spin},
-    rand::prelude::*,
-};
+use crate::prelude::*;
+use hex2d::{Coordinate, Direction::*, Spin};
 
 type Tiles = HashMap<Coordinate, MapTile>;
 

@@ -1,10 +1,4 @@
-use {
-    crate::{
-        level::{attach_to_level, Viewshed},
-        movement::BlocksMovement,
-    },
-    bevy::prelude::*,
-};
+use crate::{level::attach_to_level, prelude::*};
 
 pub struct CharacterPlugin;
 

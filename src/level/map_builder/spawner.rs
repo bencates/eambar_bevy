@@ -1,13 +1,6 @@
-use {
-    super::super::{map_tile::MapTileBundle, LocationBundle, Position},
-    super::Tiles,
-    crate::{
-        assets::TextSprite, character::CharacterBundle, movement::BlocksMovement,
-        player::PlayerBundle,
-    },
-    bevy::{prelude::*, utils::HashMap},
-    hex2d::Coordinate,
-};
+use super::Tiles;
+use crate::prelude::*;
+use hex2d::Coordinate;
 
 pub(super) fn spawn_map_tiles(tiles: &Tiles, world: &mut World) -> HashMap<Position, Entity> {
     tiles

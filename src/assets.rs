@@ -1,9 +1,5 @@
-use bevy::sprite::Mesh2dHandle;
-
-use {
-    crate::level::TILE_RADIUS,
-    bevy::prelude::{shape::RegularPolygon, *},
-};
+use crate::{level::TILE_RADIUS, prelude::*};
+use bevy::{prelude::shape::RegularPolygon, sprite::Mesh2dHandle};
 
 pub struct AssetsPlugin;
 

@@ -1,10 +1,5 @@
-use {
-    crate::{assets::TextSprite, character::CharacterBundle},
-    rand::{
-        distributions::WeightedIndex,
-        prelude::{Distribution, Rng},
-    },
-};
+use crate::prelude::*;
+use rand::distributions::WeightedIndex;
 
 pub type SpawnFn = fn(&TextSprite) -> CharacterBundle;
 

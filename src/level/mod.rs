@@ -6,17 +6,14 @@ mod map_tile;
 pub use {
     field_of_view::Viewshed,
     location::{CompassDirection, LocationBundle, Position, ZIndex},
-    map_tile::MapTile,
+    map_tile::{MapTile, MapTileBundle},
 };
 
-use {
-    crate::{bestiary, player::Player},
-    bevy::prelude::*,
-    field_of_view::{calculate_field_of_view, draw_fog_outside_player_viewshed},
-    location::move_to_location,
-    map_builder::MapBuilder,
-    map_tile::reveal_visible_map_tiles,
-};
+use crate::{bestiary, prelude::*};
+use field_of_view::{calculate_field_of_view, draw_fog_outside_player_viewshed};
+use location::move_to_location;
+use map_builder::MapBuilder;
+use map_tile::reveal_visible_map_tiles;
 
 pub const TILE_RADIUS: f32 = 8.;
 

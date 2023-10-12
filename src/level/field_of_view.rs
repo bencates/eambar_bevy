@@ -1,12 +1,5 @@
-use {
-    super::{Level, LocationBundle, MapTile, Position},
-    crate::{assets::MapAssets, player::Player},
-    bevy::{
-        prelude::*,
-        utils::{HashMap, HashSet},
-    },
-    std::ops::Index,
-};
+use crate::prelude::*;
+use std::ops::Index;
 
 #[derive(Component)]
 pub struct Viewshed {

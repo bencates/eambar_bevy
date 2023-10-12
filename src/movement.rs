@@ -1,10 +1,4 @@
-use {
-    crate::{
-        level::{CompassDirection, Position},
-        ui::LogEvent,
-    },
-    bevy::prelude::*,
-};
+use crate::prelude::*;
 
 pub struct MovementPlugin;
 

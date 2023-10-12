@@ -2,10 +2,8 @@ mod game_log;
 
 pub use game_log::LogEvent;
 
-use {
-    bevy::prelude::*,
-    game_log::{collect_log_events, draw_log_window, scroll_log_window},
-};
+use bevy::prelude::*;
+use game_log::{collect_log_events, draw_log_window, scroll_log_window};
 
 pub struct UIPlugin;
 

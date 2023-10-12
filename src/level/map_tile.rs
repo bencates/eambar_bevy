@@ -1,8 +1,4 @@
-use {
-    super::{LocationBundle, Position, Viewshed},
-    crate::{assets::MapAssets, player::Player},
-    bevy::prelude::*,
-};
+use crate::prelude::*;
 
 #[derive(Clone, Component, Copy, Debug, PartialEq)]
 pub enum MapTile {

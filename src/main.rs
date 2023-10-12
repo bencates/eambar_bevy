@@ -7,7 +7,38 @@ mod player;
 mod spawn_table;
 mod ui;
 
-use bevy::{log::LogPlugin, prelude::*};
+mod prelude {
+    pub use bevy::prelude::*;
+    pub use bevy::utils::{HashMap, HashSet};
+    pub use rand::prelude::*;
+
+    // bundles
+    pub use crate::character::CharacterBundle;
+    pub use crate::level::{LocationBundle, MapTileBundle};
+    pub use crate::player::PlayerBundle;
+
+    // components
+    pub use crate::character::{Character, Name};
+    // pub use crate::level::Fog;
+    pub use crate::level::{Level, MapTile, Position, Viewshed, ZIndex};
+    pub use crate::movement::BlocksMovement;
+    pub use crate::player::Player;
+
+    // events
+    pub use crate::movement::MoveEvent;
+    pub use crate::ui::LogEvent;
+
+    //resources
+    pub use crate::assets::{MapAssets, TextSprite};
+    pub use crate::ui::UI;
+
+    // misc
+    pub use crate::level::CompassDirection::{self, *};
+    pub use crate::spawn_table::{SpawnFn, SpawnTable};
+}
+
+use bevy::log::LogPlugin;
+use prelude::*;
 
 fn main() {
     App::new()
