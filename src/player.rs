@@ -5,7 +5,7 @@ pub struct PlayerPlugin;
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(PostStartup, attach_to_level::<Player>)
-            .add_systems(Update, keyboard_input);
+            .add_systems(Update, keyboard_input.run_if(player_has_initiative));
     }
 }
 
@@ -25,12 +25,17 @@ impl PlayerBundle {
             character: CharacterBundle {
                 marker: Character::Player,
                 name: Name("Player".to_string()),
+                initiative: Initiative::new(6),
                 blocks_movement: BlocksMovement,
                 viewshed: Viewshed::new(8),
                 sprite: text_sprite.build('@', Color::YELLOW),
             },
         }
     }
+}
+
+fn player_has_initiative(query: Query<(&Player, &HasInitiative)>) -> bool {
+    !query.is_empty()
 }
 
 fn keyboard_input(

@@ -1,6 +1,8 @@
+mod initiative;
 mod movement;
 mod visibility;
 
+pub use initiative::{HasInitiative, Initiative, SpendTurnEvent};
 pub use movement::{BlocksMovement, MoveEvent};
 pub use visibility::Viewshed;
 
@@ -11,6 +13,8 @@ pub struct RulebookPlugin;
 impl Plugin for RulebookPlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<MoveEvent>()
+            .add_event::<SpendTurnEvent>()
+            .add_systems(PreUpdate, initiative::assign_initiative)
             .add_systems(
                 Update,
                 (
@@ -20,7 +24,10 @@ impl Plugin for RulebookPlugin {
             )
             .add_systems(
                 PostUpdate,
-                visibility::show_in_player_field_of_view::<Character>,
+                (
+                    initiative::spend_turn,
+                    visibility::show_in_player_field_of_view::<Character>,
+                ),
             );
     }
 }

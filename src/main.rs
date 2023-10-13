@@ -19,13 +19,12 @@ mod prelude {
 
     // components
     pub use crate::character::{Character, Name};
-    // pub use crate::level::Fog;
     pub use crate::level::{Level, MapTile, Position, ZIndex};
     pub use crate::player::Player;
-    pub use crate::rulebook::{BlocksMovement, Viewshed};
+    pub use crate::rulebook::{BlocksMovement, HasInitiative, Initiative, Viewshed};
 
     // events
-    pub use crate::rulebook::MoveEvent;
+    pub use crate::rulebook::{MoveEvent, SpendTurnEvent};
     pub use crate::ui::LogEvent;
 
     //resources
