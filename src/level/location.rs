@@ -45,6 +45,14 @@ impl Position {
     pub(super) fn to_pixel(self) -> (f32, f32) {
         self.0.to_pixel(TILE_SPACING)
     }
+
+    pub fn distance(&self, other: &Position) -> i32 {
+        self.0.distance(other.0)
+    }
+
+    pub fn neighbors(&self) -> [Position; 6] {
+        self.0.neighbors().map(Into::into)
+    }
 }
 
 impl fmt::Display for Position {

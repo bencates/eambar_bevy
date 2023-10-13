@@ -39,28 +39,28 @@ fn player_has_initiative(query: Query<(&Player, &HasInitiative)>) -> bool {
 }
 
 fn keyboard_input(
-    query: Query<Entity, With<Player>>,
+    query: Query<(Entity, &Position), With<Player>>,
     keys: Res<Input<KeyCode>>,
     mut move_action: EventWriter<MoveEvent>,
 ) {
-    let player_id = query.single();
+    let (player_id, player_pos) = query.single();
 
     if keys.just_pressed(KeyCode::Q) {
-        move_action.send(MoveEvent(player_id, NorthWest));
+        move_action.send(MoveEvent(player_id, *player_pos + NorthWest));
     }
     if keys.just_pressed(KeyCode::W) {
-        move_action.send(MoveEvent(player_id, North));
+        move_action.send(MoveEvent(player_id, *player_pos + North));
     }
     if keys.just_pressed(KeyCode::E) {
-        move_action.send(MoveEvent(player_id, NorthEast));
+        move_action.send(MoveEvent(player_id, *player_pos + NorthEast));
     }
     if keys.just_pressed(KeyCode::A) {
-        move_action.send(MoveEvent(player_id, SouthWest));
+        move_action.send(MoveEvent(player_id, *player_pos + SouthWest));
     }
     if keys.just_pressed(KeyCode::S) {
-        move_action.send(MoveEvent(player_id, South));
+        move_action.send(MoveEvent(player_id, *player_pos + South));
     }
     if keys.just_pressed(KeyCode::D) {
-        move_action.send(MoveEvent(player_id, SouthEast));
+        move_action.send(MoveEvent(player_id, *player_pos + SouthEast));
     }
 }
