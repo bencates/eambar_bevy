@@ -5,7 +5,12 @@ pub struct PlayerPlugin;
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(PostStartup, attach_to_level::<Player>)
-            .add_systems(Update, keyboard_input.run_if(player_has_initiative));
+            .add_systems(
+                Update,
+                keyboard_input
+                    .in_set(PlanTurn)
+                    .run_if(player_has_initiative),
+            );
     }
 }
 

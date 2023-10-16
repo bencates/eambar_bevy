@@ -2,7 +2,7 @@ use crate::prelude::*;
 use pathfinding::prelude::astar;
 
 #[allow(clippy::type_complexity)]
-pub(super) fn take_turn(
+pub(super) fn plan_turn(
     query: Query<(Entity, &Viewshed, &Position), (With<HasInitiative>, Without<Player>)>,
     player_query: Query<&Position, With<Player>>,
     blockers_query: Query<&Position, With<BlocksMovement>>,

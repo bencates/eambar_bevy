@@ -7,7 +7,7 @@ pub struct CharacterPlugin;
 impl Plugin for CharacterPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(PostStartup, attach_to_level::<Character>)
-            .add_systems(Update, ai::take_turn);
+            .add_systems(Update, ai::plan_turn.in_set(PlanTurn));
     }
 }
 
