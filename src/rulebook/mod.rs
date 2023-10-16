@@ -1,7 +1,9 @@
+mod combat;
 mod initiative;
 mod movement;
 mod visibility;
 
+pub use combat::MeleeEvent;
 pub use initiative::{HasInitiative, Initiative, SpendTurnEvent};
 pub use movement::{BlocksMovement, MoveEvent};
 pub use visibility::Viewshed;
@@ -15,7 +17,8 @@ pub struct RulebookPlugin;
 
 impl Plugin for RulebookPlugin {
     fn build(&self, app: &mut App) {
-        app.add_event::<MoveEvent>()
+        app.add_event::<MeleeEvent>()
+            .add_event::<MoveEvent>()
             .add_event::<SpendTurnEvent>()
             .add_systems(
                 PreUpdate,
@@ -24,7 +27,10 @@ impl Plugin for RulebookPlugin {
                     visibility::calculate_field_of_view,
                 ),
             )
-            .add_systems(Update, movement::handle_move_event.after(PlanTurn))
+            .add_systems(
+                Update,
+                (combat::resolve_melee_attacks, movement::handle_move_event).after(PlanTurn),
+            )
             .add_systems(
                 PostUpdate,
                 (

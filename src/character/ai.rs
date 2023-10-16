@@ -4,31 +4,37 @@ use pathfinding::prelude::astar;
 #[allow(clippy::type_complexity)]
 pub(super) fn plan_turn(
     query: Query<(Entity, &Viewshed, &Position), (With<HasInitiative>, Without<Player>)>,
-    player_query: Query<&Position, With<Player>>,
+    player_query: Query<(Entity, &Position), With<Player>>,
     blockers_query: Query<&Position, With<BlocksMovement>>,
+    mut melee_action: EventWriter<MeleeEvent>,
     mut move_action: EventWriter<MoveEvent>,
     mut turns: EventWriter<SpendTurnEvent>,
 ) {
-    let player_pos = player_query.single();
+    let (player_id, player_pos) = player_query.single();
 
     if let Ok((entity, vs, pos)) = query.get_single() {
         if vs.includes(player_pos) {
-            let blocked: HashSet<_> = blockers_query.iter().copied().collect();
+            if pos.distance(player_pos) == 1 {
+                melee_action.send(MeleeEvent(entity, player_id));
+            } else {
+                let blocked: HashSet<_> = blockers_query.iter().collect();
 
-            if let Some((path, _)) = astar(
-                pos,
-                |pos| {
-                    pos.neighbors()
-                        .into_iter()
-                        .filter(|n| n == player_pos || !blocked.contains(n))
-                        .map(|n| (n, 1))
-                },
-                |pos| pos.distance(player_pos),
-                |pos| pos == player_pos,
-            ) {
-                move_action.send(MoveEvent(entity, path[1]));
+                if let Some((path, _)) = astar(
+                    pos,
+                    |pos| {
+                        pos.neighbors()
+                            .into_iter()
+                            .filter(|n| n == player_pos || !blocked.contains(n))
+                            .map(|n| (n, 1))
+                    },
+                    |pos| pos.distance(player_pos),
+                    |pos| pos == player_pos,
+                ) {
+                    move_action.send(MoveEvent(entity, path[1]));
+                }
             }
+        } else {
+            turns.send(SpendTurnEvent(entity));
         }
-        turns.send(SpendTurnEvent(entity));
     }
 }

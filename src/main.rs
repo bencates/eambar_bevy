@@ -24,7 +24,7 @@ mod prelude {
     pub use crate::rulebook::{BlocksMovement, HasInitiative, Initiative, Viewshed};
 
     // events
-    pub use crate::rulebook::{MoveEvent, SpendTurnEvent};
+    pub use crate::rulebook::{MeleeEvent, MoveEvent, SpendTurnEvent};
     pub use crate::ui::LogEvent;
 
     // resources
