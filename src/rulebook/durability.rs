@@ -23,20 +23,29 @@ impl Health {
 pub(super) fn apply_damage(
     mut damage_events: EventReader<DamageEvent>,
     mut health_pools: Query<&mut Health>,
+    names: Query<&Name>,
 ) {
     for &DamageEvent(entity, damage) in damage_events.iter() {
         if let Ok(mut health) = health_pools.get_mut(entity) {
             health.take_damage(damage);
+
+            if let Ok(name) = names.get(entity) {
+                debug!("{name} took {damage} damage, at {}/{}", health.0, health.1);
+            }
         }
     }
 }
 
 pub(super) fn cull_the_dead(
     mut commands: Commands,
-    query: Query<(Entity, &Health), Changed<Health>>,
+    query: Query<(Entity, &Health, Option<&Name>), Changed<Health>>,
 ) {
-    for (entity, health) in &query {
+    for (entity, health, name) in &query {
         if !health.is_alive() {
+            if let Some(name) = name {
+                debug!("{name} died");
+            }
+
             commands.entity(entity).despawn();
         }
     }

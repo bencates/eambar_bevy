@@ -47,7 +47,7 @@ pub(super) fn collect_log_events(
             LogEvent::Move(entity, dir, _pos) => names
                 .get(*entity)
                 .ok()
-                .map(|Name(name)| format!("{name} moved {dir}")),
+                .map(|name| format!("{name} moved {dir}")),
         };
 
         if let Some(log_entry) = log_entry {

@@ -11,9 +11,6 @@ impl Plugin for CharacterPlugin {
     }
 }
 
-#[derive(Component)]
-pub struct Name(pub String);
-
 #[derive(Component, Default)]
 pub enum Character {
     Player,

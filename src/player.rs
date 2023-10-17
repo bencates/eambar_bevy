@@ -31,7 +31,7 @@ impl PlayerBundle {
             marker: Player,
             character: CharacterBundle {
                 marker: Character::Player,
-                name: Name("Player".to_string()),
+                name: Name::new("Player"),
                 health: Health::new(30),
                 initiative: Initiative::new(6),
                 melee_damage: MeleeDamage(5),
