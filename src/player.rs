@@ -32,7 +32,9 @@ impl PlayerBundle {
             character: CharacterBundle {
                 marker: Character::Player,
                 name: Name("Player".to_string()),
+                health: Health::new(30),
                 initiative: Initiative::new(6),
+                melee_damage: MeleeDamage(5),
                 blocks_movement: BlocksMovement,
                 viewshed: Viewshed::new(8),
                 sprite: text_sprite.build('@', Color::YELLOW),

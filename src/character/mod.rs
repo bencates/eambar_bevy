@@ -25,7 +25,9 @@ pub enum Character {
 pub struct CharacterBundle {
     pub marker: Character,
     pub name: Name,
+    pub health: Health,
     pub initiative: Initiative,
+    pub melee_damage: MeleeDamage,
     pub blocks_movement: BlocksMovement,
     pub viewshed: Viewshed,
     pub sprite: SpriteSheetBundle,

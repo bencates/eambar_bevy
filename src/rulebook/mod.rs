@@ -1,14 +1,17 @@
 mod combat;
+mod durability;
 mod initiative;
 mod movement;
 mod visibility;
 
-pub use combat::MeleeEvent;
+pub use combat::{MeleeDamage, MeleeEvent};
+pub use durability::Health;
 pub use initiative::{HasInitiative, Initiative, SpendTurnEvent};
 pub use movement::{BlocksMovement, MoveEvent};
 pub use visibility::Viewshed;
 
 use crate::prelude::*;
+use durability::DamageEvent;
 
 #[derive(Clone, Debug, Hash, SystemSet, PartialEq, Eq)]
 pub struct PlanTurn;
@@ -19,6 +22,7 @@ impl Plugin for RulebookPlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<MeleeEvent>()
             .add_event::<MoveEvent>()
+            .add_event::<DamageEvent>()
             .add_event::<SpendTurnEvent>()
             .add_systems(
                 PreUpdate,
@@ -29,7 +33,13 @@ impl Plugin for RulebookPlugin {
             )
             .add_systems(
                 Update,
-                (combat::resolve_melee_attacks, movement::handle_move_event).after(PlanTurn),
+                (
+                    (combat::resolve_melee_attacks, movement::handle_move_event),
+                    durability::apply_damage,
+                    durability::cull_the_dead,
+                )
+                    .chain()
+                    .after(PlanTurn),
             )
             .add_systems(
                 PostUpdate,

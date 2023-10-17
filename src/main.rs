@@ -21,7 +21,9 @@ mod prelude {
     pub use crate::character::{Character, Name};
     pub use crate::level::{Level, MapTile, Position, ZIndex};
     pub use crate::player::Player;
-    pub use crate::rulebook::{BlocksMovement, HasInitiative, Initiative, Viewshed};
+    pub use crate::rulebook::{
+        BlocksMovement, HasInitiative, Health, Initiative, MeleeDamage, Viewshed,
+    };
 
     // events
     pub use crate::rulebook::{MeleeEvent, MoveEvent, SpendTurnEvent};
