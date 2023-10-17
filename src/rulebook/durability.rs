@@ -11,6 +11,14 @@ impl Health {
         Self(health, health)
     }
 
+    pub fn current(&self) -> i32 {
+        self.0
+    }
+
+    pub fn max(&self) -> i32 {
+        self.1
+    }
+
     fn take_damage(&mut self, damage: i32) {
         self.0 -= damage;
     }
