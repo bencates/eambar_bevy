@@ -45,17 +45,23 @@ impl<R: Rng> MapBuilder<R> {
         self
     }
 
-    pub fn spawn(mut self, world: &mut World) {
-        let _tile_ids = spawner::spawn_map_tiles(&self.tiles, world);
+    pub fn spawn(mut self, world: &mut World) -> HashMap<Position, Entity> {
+        let tile_ids: HashMap<Position, Entity> = spawner::spawn_map_tiles(&self.tiles, world);
+
+        for (&pos, &tile_id) in tile_ids.iter() {
+            spawner::spawn_fog(pos, tile_id, world)
+        }
 
         if let Some(coord) = self.player_origin {
-            let _player_id = spawner::spawn_player(coord, world);
+            let _player_id = spawner::spawn_player(coord.into(), world);
         }
 
         for coord in self.spawn_points {
             let builder = self.spawn_table.sample(&mut self.rng);
-            let _monster_id = spawner::spawn_monster(coord, builder, world);
+            let _monster_id = spawner::spawn_monster(coord.into(), builder, world);
         }
+
+        tile_ids
     }
 }
 

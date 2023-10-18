@@ -33,12 +33,16 @@ impl FromWorld for TextSprite {
 }
 
 impl TextSprite {
-    pub fn build(&self, sprite: char, color: Color) -> SpriteSheetBundle {
+    pub fn build(&self, sprite: char, color: Color, z_index: f32) -> SpriteSheetBundle {
         SpriteSheetBundle {
             texture_atlas: self.0.clone(),
             sprite: TextureAtlasSprite {
                 index: TextSprite::char_index(sprite),
                 color,
+                ..default()
+            },
+            transform: Transform {
+                translation: Vec3::Z * z_index,
                 ..default()
             },
             ..default()

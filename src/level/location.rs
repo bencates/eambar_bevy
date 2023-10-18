@@ -1,3 +1,4 @@
+use super::{Level, MapTile};
 use bevy::prelude::*;
 use hex2d::{Coordinate, Direction, Spacing, Spin};
 use std::{fmt, ops::Add};
@@ -6,15 +7,6 @@ const TILE_SPACING: Spacing = Spacing::FlatTop(super::TILE_RADIUS);
 
 #[derive(Clone, Copy, Component, Debug, Hash, Eq, PartialEq)]
 pub struct Position(Coordinate);
-
-#[derive(Clone, Copy, Component, Debug)]
-pub struct ZIndex(f32);
-
-#[derive(Bundle)]
-pub struct LocationBundle {
-    pub position: Position,
-    pub z_index: ZIndex,
-}
 
 #[derive(Clone, Copy, Debug)]
 pub enum CompassDirection {
@@ -107,18 +99,17 @@ impl From<(i32, i32)> for Position {
     }
 }
 
-impl From<i32> for ZIndex {
-    fn from(z_index: i32) -> Self {
-        Self(z_index as f32)
-    }
-}
-
+#[allow(clippy::type_complexity)]
 pub(super) fn move_to_location(
-    mut query: Query<(&Position, &ZIndex, &mut Transform), Changed<Position>>,
+    mut commands: Commands,
+    level_query: Query<&Level>,
+    mut query: Query<(Entity, &Position), (Changed<Position>, Without<MapTile>)>,
 ) {
-    for (Position(coord), &ZIndex(z), mut transform) in &mut query {
-        let (x, y) = coord.to_pixel(TILE_SPACING);
+    let level = level_query.single();
 
-        transform.translation = Vec3::new(x, y, z);
+    for (entity, pos) in &mut query {
+        if let Some(&map_tile_id) = level.get(pos) {
+            commands.entity(entity).set_parent(map_tile_id);
+        }
     }
 }

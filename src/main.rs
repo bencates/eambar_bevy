@@ -14,12 +14,12 @@ mod prelude {
 
     // bundles
     pub use crate::character::CharacterBundle;
-    pub use crate::level::{LocationBundle, MapTileBundle};
+    pub use crate::level::MapTileBundle;
     pub use crate::player::PlayerBundle;
 
     // components
     pub use crate::character::Character;
-    pub use crate::level::{Level, MapTile, Position, ZIndex};
+    pub use crate::level::{Level, MapTile, Position};
     pub use crate::player::Player;
     pub use crate::rulebook::{
         BlocksMovement, HasInitiative, Health, Initiative, MeleeDamage, Viewshed,

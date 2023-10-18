@@ -25,18 +25,16 @@ impl MapTile {
 #[derive(Bundle)]
 pub struct MapTileBundle {
     tile: MapTile,
-    location: LocationBundle,
+    position: Position,
     sprite: ColorMesh2dBundle,
 }
 
 impl MapTileBundle {
     pub fn new(tile: MapTile, position: Position, assets: &MapAssets) -> Self {
+        let (x, y) = position.to_pixel();
         MapTileBundle {
             tile,
-            location: LocationBundle {
-                position,
-                z_index: 0.into(),
-            },
+            position,
             sprite: ColorMesh2dBundle {
                 mesh: assets.hexagon.clone(),
                 material: match tile {
@@ -44,6 +42,7 @@ impl MapTileBundle {
                     MapTile::Wall => assets.wall_color.clone(),
                 },
                 transform: Transform {
+                    translation: (x, y, 0.).into(),
                     rotation: MapAssets::HEX_ROTATION,
                     ..default()
                 },

@@ -4,7 +4,7 @@ mod map_builder;
 mod map_tile;
 
 pub use {
-    location::{CompassDirection, LocationBundle, Position, ZIndex},
+    location::{CompassDirection, Position},
     map_tile::{MapTile, MapTileBundle},
 };
 
@@ -17,35 +17,23 @@ pub struct LevelPlugin;
 
 impl Plugin for LevelPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Startup, (spawn, attach_to_level::<MapTile>).chain())
-            .add_systems(Update, fog::draw_fog_outside_player_viewshed)
-            .add_systems(
-                PostUpdate,
-                (
-                    map_tile::reveal_visible_map_tiles,
-                    location::move_to_location,
-                    center_under_player,
-                ),
-            );
+        app.add_systems(Startup, spawn).add_systems(
+            PostUpdate,
+            (
+                fog::show_outside_player_viewshed,
+                map_tile::reveal_visible_map_tiles,
+                location::move_to_location,
+                center_under_player,
+            ),
+        );
     }
 }
 
-#[derive(Component)]
-pub struct Level;
+#[derive(Component, Deref)]
+pub struct Level(HashMap<Position, Entity>);
 
 fn spawn(world: &mut World) {
-    world.spawn((
-        Level,
-        SpatialBundle {
-            transform: Transform {
-                scale: Vec3::splat(1.4),
-                ..default()
-            },
-            ..default()
-        },
-    ));
-
-    MapBuilder::new(
+    let tile_ids = MapBuilder::new(
         rand::thread_rng(),
         &[
             (75, bestiary::infected_crewmember),
@@ -55,17 +43,21 @@ fn spawn(world: &mut World) {
     .empty_hexagon(24)
     .run_bisection_generator(24)
     .spawn(world);
-}
 
-pub fn attach_to_level<Child: Component>(
-    mut commands: Commands,
-    child_query: Query<Entity, With<Child>>,
-    level_query: Query<Entity, With<Level>>,
-) {
-    let level = level_query.single();
-    let children = child_query.iter().collect::<Vec<_>>();
+    let tiles: Vec<_> = tile_ids.values().cloned().collect();
 
-    commands.entity(level).push_children(&children);
+    world
+        .spawn((
+            Level(tile_ids),
+            SpatialBundle {
+                transform: Transform {
+                    scale: Vec3::splat(1.4),
+                    ..default()
+                },
+                ..default()
+            },
+        ))
+        .push_children(&tiles);
 }
 
 fn center_under_player(

@@ -1,6 +1,5 @@
 use super::Tiles;
-use crate::prelude::*;
-use hex2d::Coordinate;
+use crate::{level::fog::Fog, prelude::*};
 
 pub(super) fn spawn_map_tiles(tiles: &Tiles, world: &mut World) -> HashMap<Position, Entity> {
     tiles
@@ -20,34 +19,24 @@ pub(super) fn spawn_map_tiles(tiles: &Tiles, world: &mut World) -> HashMap<Posit
         .collect()
 }
 
-pub(super) fn spawn_player(coord: Coordinate, world: &mut World) -> Entity {
+pub(super) fn spawn_fog(pos: Position, tile_id: Entity, world: &mut World) {
+    let assets = world.resource();
+
+    world.spawn((Fog::bundle(assets), pos)).set_parent(tile_id);
+}
+
+pub(super) fn spawn_player(pos: Position, world: &mut World) -> Entity {
     let text_sprite = world.resource();
 
-    world
-        .spawn((
-            PlayerBundle::new(text_sprite),
-            LocationBundle {
-                position: coord.into(),
-                z_index: 10.into(),
-            },
-        ))
-        .id()
+    world.spawn((PlayerBundle::new(text_sprite), pos)).id()
 }
 
 pub(super) fn spawn_monster(
-    coord: Coordinate,
+    pos: Position,
     builder: impl FnOnce(&TextSprite) -> CharacterBundle,
     world: &mut World,
 ) -> Entity {
     let text_sprite = world.resource();
 
-    world
-        .spawn((
-            builder(text_sprite),
-            LocationBundle {
-                position: coord.into(),
-                z_index: 9.into(),
-            },
-        ))
-        .id()
+    world.spawn((builder(text_sprite), pos)).id()
 }

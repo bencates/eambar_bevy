@@ -15,26 +15,26 @@ pub(super) fn plan_turn(
     if let Ok((entity, vs, pos)) = query.get_single() {
         if vs.includes(player_pos) {
             if pos.distance(player_pos) == 1 {
-                melee_action.send(MeleeEvent(entity, player_id));
-            } else {
-                let blocked: HashSet<_> = blockers_query.iter().collect();
-
-                if let Some((path, _)) = astar(
-                    pos,
-                    |pos| {
-                        pos.neighbors()
-                            .into_iter()
-                            .filter(|n| n == player_pos || !blocked.contains(n))
-                            .map(|n| (n, 1))
-                    },
-                    |pos| pos.distance(player_pos),
-                    |pos| pos == player_pos,
-                ) {
-                    move_action.send(MoveEvent(entity, path[1]));
-                }
+                return melee_action.send(MeleeEvent(entity, player_id));
             }
-        } else {
-            turns.send(SpendTurnEvent(entity));
+
+            let blocked: HashSet<_> = blockers_query.iter().collect();
+
+            if let Some((path, _)) = astar(
+                pos,
+                |pos| {
+                    pos.neighbors()
+                        .into_iter()
+                        .filter(|n| n == player_pos || !blocked.contains(n))
+                        .map(|n| (n, 1))
+                },
+                |pos| pos.distance(player_pos),
+                |pos| pos == player_pos,
+            ) {
+                return move_action.send(MoveEvent(entity, path[1]));
+            }
         }
+
+        turns.send(SpendTurnEvent(entity));
     }
 }

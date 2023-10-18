@@ -9,7 +9,7 @@ pub fn infected_crewmember(text_sprite: &TextSprite) -> CharacterBundle {
         melee_damage: MeleeDamage(4),
         blocks_movement: BlocksMovement,
         viewshed: Viewshed::new(8),
-        sprite: text_sprite.build('z', Color::RED),
+        sprite: text_sprite.build('z', Color::RED, Character::Z_INDEX),
     }
 }
 
@@ -22,6 +22,6 @@ pub fn alien_hatchling(text_sprite: &TextSprite) -> CharacterBundle {
         melee_damage: MeleeDamage(4),
         blocks_movement: BlocksMovement,
         viewshed: Viewshed::new(8),
-        sprite: text_sprite.build('h', Color::RED),
+        sprite: text_sprite.build('h', Color::RED, Character::Z_INDEX),
     }
 }

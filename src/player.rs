@@ -1,23 +1,25 @@
-use crate::{level::attach_to_level, prelude::*};
+use crate::prelude::*;
 
 pub struct PlayerPlugin;
 
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
-        app.add_event::<AttackOrMoveEvent>()
-            .add_systems(PostStartup, attach_to_level::<Player>)
-            .add_systems(
-                Update,
-                (keyboard_input, attack_or_move)
-                    .chain()
-                    .in_set(PlanTurn)
-                    .run_if(player_has_initiative),
-            );
+        app.add_event::<AttackOrMoveEvent>().add_systems(
+            Update,
+            (keyboard_input, attack_or_move)
+                .chain()
+                .in_set(PlanTurn)
+                .run_if(player_has_initiative),
+        );
     }
 }
 
 #[derive(Component)]
 pub struct Player;
+
+impl Player {
+    const Z_INDEX: f32 = 10.;
+}
 
 #[derive(Bundle)]
 pub struct PlayerBundle {
@@ -37,7 +39,7 @@ impl PlayerBundle {
                 melee_damage: MeleeDamage(5),
                 blocks_movement: BlocksMovement,
                 viewshed: Viewshed::new(8),
-                sprite: text_sprite.build('@', Color::YELLOW),
+                sprite: text_sprite.build('@', Color::YELLOW, Player::Z_INDEX),
             },
         }
     }

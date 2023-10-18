@@ -51,7 +51,7 @@ pub(super) fn show_in_player_field_of_view<T: Component>(
 
     for (pos, mut vis) in &mut query {
         if viewshed.includes(pos) {
-            *vis = Visibility::Visible;
+            *vis = Visibility::Inherited;
         } else {
             *vis = Visibility::Hidden;
         }

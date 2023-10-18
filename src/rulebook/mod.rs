@@ -16,6 +16,9 @@ use durability::DamageEvent;
 #[derive(Clone, Debug, Hash, SystemSet, PartialEq, Eq)]
 pub struct PlanTurn;
 
+#[derive(Clone, Debug, Hash, SystemSet, PartialEq, Eq)]
+pub struct ResolveTurn;
+
 pub struct RulebookPlugin;
 
 impl Plugin for RulebookPlugin {
@@ -39,6 +42,7 @@ impl Plugin for RulebookPlugin {
                     durability::cull_the_dead,
                 )
                     .chain()
+                    .in_set(ResolveTurn)
                     .after(PlanTurn),
             )
             .add_systems(
