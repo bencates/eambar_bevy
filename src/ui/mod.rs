@@ -1,32 +1,20 @@
-mod game_log;
 mod player_stats;
 
-pub use game_log::LogEvent;
-
 use bevy::prelude::*;
-use game_log::{collect_log_events, draw_log_window, scroll_log_window};
 
 pub struct UIPlugin;
 
 impl Plugin for UIPlugin {
     fn build(&self, app: &mut App) {
-        app.add_event::<LogEvent>()
-            .init_resource::<UI>()
-            .add_systems(PostStartup, (draw_log_window, player_stats::draw))
-            .add_systems(
-                PostUpdate,
-                (
-                    player_stats::update_health,
-                    (collect_log_events, scroll_log_window).chain(),
-                ),
-            );
+        app.init_resource::<UI>()
+            .add_systems(PostStartup, player_stats::draw)
+            .add_systems(PostUpdate, player_stats::update_health);
     }
 }
 
 #[derive(Resource)]
 pub struct UI {
     player_stats_frame: Entity,
-    log_frame: Entity,
 }
 
 impl FromWorld for UI {
@@ -57,33 +45,6 @@ impl FromWorld for UI {
             })
             .id();
 
-        let log_frame = world
-            .spawn(NodeBundle {
-                style: Style {
-                    position_type: PositionType::Absolute,
-                    right: Val::Px(0.),
-                    bottom: Val::Px(0.),
-
-                    width: Val::Vw(30.),
-                    height: Val::Px(200.),
-                    border: UiRect {
-                        top: Val::Px(3.),
-                        left: Val::Px(3.),
-                        ..default()
-                    },
-                    padding: UiRect::all(Val::Px(6.)),
-
-                    ..default()
-                },
-                background_color: Color::BLACK.into(),
-                border_color: Color::WHITE.into(),
-                ..default()
-            })
-            .id();
-
-        UI {
-            player_stats_frame,
-            log_frame,
-        }
+        UI { player_stats_frame }
     }
 }

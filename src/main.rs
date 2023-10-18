@@ -27,7 +27,6 @@ mod prelude {
 
     // events
     pub use crate::rulebook::{MeleeEvent, MoveEvent, SpendTurnEvent};
-    pub use crate::ui::LogEvent;
 
     // resources
     pub use crate::assets::{MapAssets, TextSprite};
