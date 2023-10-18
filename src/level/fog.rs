@@ -14,10 +14,8 @@ impl Fog {
                 material: assets.fog_color.clone(),
                 transform: Transform {
                     translation: Vec3::Z * Self::Z_INDEX,
-                    // rotation: MapAssets::HEX_ROTATION,
                     ..default()
                 },
-                // visibility: Visibility::Hidden,
                 ..default()
             },
         )

@@ -43,7 +43,6 @@ impl MapTileBundle {
                 },
                 transform: Transform {
                     translation: (x, y, 0.).into(),
-                    rotation: MapAssets::HEX_ROTATION,
                     ..default()
                 },
                 visibility: Visibility::Hidden,

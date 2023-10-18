@@ -1,5 +1,9 @@
 use crate::{level::TILE_RADIUS, prelude::*};
-use bevy::{prelude::shape::RegularPolygon, sprite::Mesh2dHandle};
+use bevy::{
+    render::{mesh::Indices, render_resource::PrimitiveTopology},
+    sprite::Mesh2dHandle,
+};
+use std::f32::consts::FRAC_PI_3;
 
 pub struct AssetsPlugin;
 
@@ -342,9 +346,7 @@ pub struct MapAssets {
 
 impl FromWorld for MapAssets {
     fn from_world(world: &mut World) -> Self {
-        let hexagon = world
-            .resource_mut::<Assets<_>>()
-            .add(RegularPolygon::new(TILE_RADIUS, 6).into());
+        let hexagon = world.resource_mut::<Assets<_>>().add(hexagon_mesh());
 
         let mut materials = world.resource_mut::<Assets<_>>();
 
@@ -361,7 +363,27 @@ impl FromWorld for MapAssets {
     }
 }
 
-impl MapAssets {
-    /// 30° around the z axis, i.e. from pointy-top to flat-top
-    pub const HEX_ROTATION: Quat = Quat::from_xyzw(0.0, 0.0, 0.25881904, 0.9659258);
+fn hexagon_mesh() -> Mesh {
+    let corners = [0., 1., 2., 3., 4., 5.].map(|i| (FRAC_PI_3 * i).sin_cos());
+
+    let mut mesh = Mesh::new(PrimitiveTopology::TriangleStrip);
+    mesh.set_indices(Some(Indices::U32(vec![3, 2, 4, 1, 5, 0])));
+
+    mesh.insert_attribute(
+        Mesh::ATTRIBUTE_POSITION,
+        corners
+            .map(|(sin, cos)| Vec3::new(cos, sin, 0.) * TILE_RADIUS)
+            .to_vec(),
+    );
+
+    mesh.insert_attribute(Mesh::ATTRIBUTE_NORMAL, vec![Vec3::Z; 6]);
+
+    mesh.insert_attribute(
+        Mesh::ATTRIBUTE_UV_0,
+        corners
+            .map(|(sin, cos)| Vec2::new(1. + cos, 1. - sin) / 2.)
+            .to_vec(),
+    );
+
+    mesh
 }
