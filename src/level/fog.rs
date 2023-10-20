@@ -4,7 +4,7 @@ use crate::prelude::*;
 pub struct Fog;
 
 impl Fog {
-    const Z_INDEX: f32 = 1.;
+    const Z_INDEX: f32 = 11.;
 
     pub fn bundle(assets: &MapAssets) -> impl Bundle {
         (

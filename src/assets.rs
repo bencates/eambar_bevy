@@ -342,6 +342,7 @@ pub struct MapAssets {
     pub floor_color: Handle<ColorMaterial>,
     pub wall_color: Handle<ColorMaterial>,
     pub fog_color: Handle<ColorMaterial>,
+    pub target_reticle_color: Handle<ColorMaterial>,
 }
 
 impl FromWorld for MapAssets {
@@ -350,15 +351,12 @@ impl FromWorld for MapAssets {
 
         let mut materials = world.resource_mut::<Assets<_>>();
 
-        let floor_color = materials.add(ColorMaterial::from(Color::DARK_GRAY));
-        let wall_color = materials.add(ColorMaterial::from(Color::GRAY));
-        let fog_color = materials.add(ColorMaterial::from(Color::BLACK.with_a(0.4)));
-
         Self {
             hexagon: hexagon.into(),
-            floor_color,
-            wall_color,
-            fog_color,
+            floor_color: materials.add(Color::DARK_GRAY.into()),
+            wall_color: materials.add(Color::GRAY.into()),
+            fog_color: materials.add(Color::BLACK.with_a(0.4).into()),
+            target_reticle_color: materials.add(Color::WHITE.with_a(0.4).into()),
         }
     }
 }

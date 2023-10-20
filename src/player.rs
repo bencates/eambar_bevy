@@ -26,6 +26,12 @@ impl Player {
 #[derive(Component)]
 pub struct Target(Option<Entity>);
 
+impl Target {
+    pub fn id(&self) -> Option<Entity> {
+        self.0
+    }
+}
+
 #[derive(Bundle)]
 pub struct PlayerBundle {
     marker: Player,
