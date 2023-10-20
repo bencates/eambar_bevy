@@ -33,10 +33,10 @@ pub(super) fn spawn_player(pos: Position, world: &mut World) -> Entity {
 
 pub(super) fn spawn_monster(
     pos: Position,
-    builder: impl FnOnce(&TextSprite) -> CharacterBundle,
+    template: CharacterTemplate,
     world: &mut World,
 ) -> Entity {
     let text_sprite = world.resource();
 
-    world.spawn((builder(text_sprite), pos)).id()
+    world.spawn((template.build(text_sprite), pos)).id()
 }

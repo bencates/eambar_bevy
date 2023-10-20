@@ -10,6 +10,8 @@ bevy = { version = "0.11.3", features = ["dynamic_linking"] }
 hex2d = "1.1.0"
 pathfinding = "4.3.2"
 rand = "0.8.5"
+ron = "0.8.1"
+serde = "1.0.189"
 
 # Enable a small amount of optimization in debug mode
 [profile.dev]

@@ -17,7 +17,7 @@ pub struct MapBuilder<R: Rng> {
 }
 
 impl<R: Rng> MapBuilder<R> {
-    pub fn new(rng: R, spawn_table: &[(i32, SpawnFn)]) -> Self {
+    pub fn new(rng: R, spawn_table: &[(i32, &CharacterTemplate)]) -> Self {
         Self {
             rng,
             tiles: HashMap::new(),
@@ -57,8 +57,8 @@ impl<R: Rng> MapBuilder<R> {
         }
 
         for coord in self.spawn_points {
-            let builder = self.spawn_table.sample(&mut self.rng);
-            let _monster_id = spawner::spawn_monster(coord.into(), builder, world);
+            let template = self.spawn_table.sample(&mut self.rng);
+            let _monster_id = spawner::spawn_monster(coord.into(), template, world);
         }
 
         tile_ids

@@ -1,5 +1,4 @@
 mod assets;
-mod bestiary;
 mod character;
 mod level;
 mod player;
@@ -30,14 +29,16 @@ mod prelude {
 
     // resources
     pub use crate::assets::{MapAssets, TextSprite};
+    pub use crate::character::CharacterTemplates;
     pub use crate::ui::UI;
 
     // system sets
     pub use crate::rulebook::PlanTurn;
 
     // misc
+    pub use crate::character::CharacterTemplate;
     pub use crate::level::CompassDirection::{self, *};
-    pub use crate::spawn_table::{SpawnFn, SpawnTable};
+    pub use crate::spawn_table::SpawnTable;
 }
 
 use bevy::log::LogPlugin;

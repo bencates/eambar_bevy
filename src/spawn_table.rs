@@ -1,26 +1,24 @@
 use crate::prelude::*;
 use rand::distributions::WeightedIndex;
 
-pub type SpawnFn = fn(&TextSprite) -> CharacterBundle;
-
 pub struct SpawnTable {
-    spawns: Vec<SpawnFn>,
+    templates: Vec<CharacterTemplate>,
     weighted_index: WeightedIndex<i32>,
 }
 
 impl SpawnTable {
-    pub fn new(spawn_table: &[(i32, SpawnFn)]) -> Self {
-        let (weights, spawns): (Vec<_>, Vec<_>) = spawn_table.iter().copied().unzip();
+    pub fn new(spawn_table: &[(i32, &CharacterTemplate)]) -> Self {
+        let (weights, templates): (Vec<_>, Vec<_>) = spawn_table.iter().copied().unzip();
 
         Self {
-            spawns,
+            templates: templates.into_iter().cloned().collect(),
             weighted_index: WeightedIndex::new(weights).expect("invalid weights for spawn table"),
         }
     }
 }
 
-impl Distribution<SpawnFn> for SpawnTable {
-    fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> SpawnFn {
-        self.spawns[self.weighted_index.sample(rng)]
+impl Distribution<CharacterTemplate> for SpawnTable {
+    fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> CharacterTemplate {
+        self.templates[self.weighted_index.sample(rng)].clone()
     }
 }

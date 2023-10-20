@@ -1,16 +1,21 @@
 mod ai;
+mod template;
+
+pub use template::{CharacterTemplate, CharacterTemplates};
 
 use crate::prelude::*;
+use serde::Deserialize;
 
 pub struct CharacterPlugin;
 
 impl Plugin for CharacterPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, ai::plan_turn.in_set(PlanTurn));
+        app.insert_resource(CharacterTemplates::load())
+            .add_systems(Update, ai::plan_turn.in_set(PlanTurn));
     }
 }
 
-#[derive(Component, Default)]
+#[derive(Clone, Copy, Component, Debug, Default, Deserialize)]
 pub enum Character {
     Player,
     #[default]

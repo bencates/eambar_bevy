@@ -8,7 +8,7 @@ pub use {
     map_tile::{MapTile, MapTileBundle},
 };
 
-use crate::{bestiary, prelude::*};
+use crate::prelude::*;
 use map_builder::MapBuilder;
 
 pub const TILE_RADIUS: f32 = 8.;
@@ -33,11 +33,13 @@ impl Plugin for LevelPlugin {
 pub struct Level(HashMap<Position, Entity>);
 
 fn spawn(world: &mut World) {
+    let templates: &CharacterTemplates = world.resource();
+
     let tile_ids = MapBuilder::new(
         rand::thread_rng(),
         &[
-            (75, bestiary::infected_crewmember),
-            (25, bestiary::alien_hatchling),
+            (75, &templates["infected_crewmember"]),
+            (25, &templates["alien_hatchling"]),
         ],
     )
     .empty_hexagon(24)

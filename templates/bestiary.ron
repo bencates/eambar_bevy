@@ -1,0 +1,21 @@
+{
+    "infected_crewmember": (
+        marker: Monster,
+        name: "Infected Crewmember",
+        health: 16,
+        initiative: 8,
+        melee_damage: 4,
+        viewshed: 8,
+        sprite: ('z', Rgba(red: 1, green: 0, blue: 0, alpha: 1)),
+    ),
+
+    "alien_hatchling": (
+        marker: Monster,
+        name: "Alien Hatchling",
+        health: 16,
+        initiative: 4,
+        melee_damage: 4,
+        viewshed: 8,
+        sprite: ('h', Rgba(red: 1, green: 0, blue: 0, alpha: 1)),
+    )
+}
