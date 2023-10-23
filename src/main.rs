@@ -17,7 +17,7 @@ mod prelude {
     pub use crate::player::PlayerBundle;
 
     // components
-    pub use crate::character::Character;
+    pub use crate::character::{Character, Target};
     pub use crate::level::{Level, MapTile, Position};
     pub use crate::player::Player;
     pub use crate::rulebook::{

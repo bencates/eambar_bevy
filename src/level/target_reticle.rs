@@ -1,4 +1,4 @@
-use crate::{player::Target, prelude::*};
+use crate::prelude::*;
 use bevy::ecs::query::QuerySingleError::*;
 
 #[derive(Component)]

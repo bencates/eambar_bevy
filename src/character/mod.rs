@@ -1,6 +1,8 @@
 mod ai;
+mod target;
 mod template;
 
+pub use target::Target;
 pub use template::{CharacterTemplate, CharacterTemplates};
 
 use crate::prelude::*;

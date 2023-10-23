@@ -23,15 +23,6 @@ impl Player {
     const Z_INDEX: f32 = 10.;
 }
 
-#[derive(Component)]
-pub struct Target(Option<Entity>);
-
-impl Target {
-    pub fn id(&self) -> Option<Entity> {
-        self.0
-    }
-}
-
 #[derive(Bundle)]
 pub struct PlayerBundle {
     marker: Player,
@@ -43,7 +34,7 @@ impl PlayerBundle {
     pub fn new(text_sprite: &TextSprite) -> PlayerBundle {
         PlayerBundle {
             marker: Player,
-            target: Target(None),
+            target: Target::default(),
             character: CharacterBundle {
                 marker: Character::Player,
                 name: Name::new("Player"),
@@ -146,7 +137,8 @@ fn set_target(
 
     for event in target_events.iter() {
         let new_target_id = match event {
-            TargetEvent::Prev => (target.0)
+            TargetEvent::Prev => target
+                .id()
                 .and_then(|curr| {
                     targets
                         .windows(2)
@@ -154,7 +146,8 @@ fn set_target(
                 })
                 .or_else(|| targets.last().copied()),
 
-            TargetEvent::Next => (target.0)
+            TargetEvent::Next => target
+                .id()
                 .and_then(|curr| {
                     targets
                         .windows(2)
@@ -166,6 +159,10 @@ fn set_target(
         };
 
         debug!("targeting {new_target_id:?}");
-        target.0 = new_target_id;
+
+        match new_target_id {
+            Some(id) => target.set(id),
+            None => target.clear(),
+        }
     }
 }

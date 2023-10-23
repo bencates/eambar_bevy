@@ -2,6 +2,7 @@ mod fog;
 mod location;
 mod map_builder;
 mod map_tile;
+mod target_reticle;
 
 pub use {
     location::{CompassDirection, Position},
@@ -22,6 +23,7 @@ impl Plugin for LevelPlugin {
             (
                 fog::show_outside_player_viewshed,
                 map_tile::reveal_visible_map_tiles,
+                target_reticle::draw,
                 location::move_to_location,
                 center_under_player,
             ),
