@@ -62,8 +62,8 @@ fn center_under_player(
     if let Ok(player_pos) = player_query.get_single() {
         let mut level_transform = level_query.single_mut();
 
-        let (x, y) = player_pos.to_pixel();
+        let px = player_pos.to_world_pos();
 
-        level_transform.translation = Vec3::new(-x, -y, 0.);
+        level_transform.translation = (px, 0.).into();
     }
 }

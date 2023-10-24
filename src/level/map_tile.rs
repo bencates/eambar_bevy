@@ -31,7 +31,7 @@ pub struct MapTileBundle {
 
 impl MapTileBundle {
     pub fn new(tile: MapTile, position: Position, assets: &MapAssets) -> Self {
-        let (x, y) = position.to_pixel();
+        let px = position.to_world_pos();
         MapTileBundle {
             tile,
             position,
@@ -42,7 +42,7 @@ impl MapTileBundle {
                     MapTile::Wall => assets.wall_color.clone(),
                 },
                 transform: Transform {
-                    translation: (x, y, 0.).into(),
+                    translation: (px, 0.).into(),
                     ..default()
                 },
                 visibility: Visibility::Hidden,

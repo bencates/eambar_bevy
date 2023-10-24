@@ -34,8 +34,8 @@ impl Position {
             .map(|(c1, c2)| (c1.into(), c2.into()))
     }
 
-    pub(super) fn to_pixel(self) -> (f32, f32) {
-        self.0.to_pixel(TILE_SPACING)
+    pub(super) fn to_world_pos(self) -> Vec2 {
+        self.0.to_pixel(TILE_SPACING).into()
     }
 
     pub fn distance(&self, other: &Position) -> i32 {
