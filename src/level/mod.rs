@@ -51,16 +51,7 @@ fn spawn(world: &mut World) {
     let tiles: Vec<_> = tile_ids.values().cloned().collect();
 
     world
-        .spawn((
-            Level(tile_ids),
-            SpatialBundle {
-                transform: Transform {
-                    scale: Vec3::splat(1.4),
-                    ..default()
-                },
-                ..default()
-            },
-        ))
+        .spawn((Level(tile_ids), SpatialBundle::default()))
         .push_children(&tiles);
 }
 
@@ -73,6 +64,6 @@ fn center_under_player(
 
         let (x, y) = player_pos.to_pixel();
 
-        level_transform.translation = Vec3::new(-x, -y, 0.) * level_transform.scale;
+        level_transform.translation = Vec3::new(-x, -y, 0.);
     }
 }

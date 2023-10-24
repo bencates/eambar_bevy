@@ -70,9 +70,19 @@ fn main() {
             player::PlayerPlugin,
             ui::UIPlugin,
         ))
-        .add_systems(Startup, |mut commands: Commands| {
-            commands.spawn(Camera2dBundle::default());
-        })
+        .add_systems(Startup, spawn_camera)
         .add_systems(Update, bevy::window::close_on_esc)
         .run();
+}
+
+fn spawn_camera(mut commands: Commands) {
+    commands.spawn(Camera2dBundle {
+        projection: OrthographicProjection {
+            far: 1000.,
+            near: -1000.,
+            scale: 1. / 1.4,
+            ..default()
+        },
+        ..default()
+    });
 }
