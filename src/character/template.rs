@@ -20,7 +20,7 @@ pub struct CharacterTemplate {
 
 impl CharacterTemplates {
     pub fn load() -> Self {
-        Self(dbg!(ron::from_str(BESTIARY_RON)).unwrap())
+        Self(ron::from_str(BESTIARY_RON).unwrap())
     }
 }
 
