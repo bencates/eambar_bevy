@@ -64,6 +64,6 @@ fn center_under_player(
 
         let px = player_pos.to_world_pos();
 
-        level_transform.translation = (px, 0.).into();
+        level_transform.translation = (-px, 0.).into();
     }
 }
