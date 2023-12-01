@@ -1,40 +1,38 @@
 use super::{is_blocked, Tiles, ORIGIN};
 use crate::prelude::MapTile;
-use hex2d::{Coordinate, Direction, Direction::*, LineTo, Spin};
+use hex2d::{Coordinate, Direction, Direction::*, Spin};
 use rand::prelude::Rng;
+use std::iter::zip;
 
 const MIN_ROOM_SIZE: i32 = 4;
 
 pub(super) fn run(tiles: &mut Tiles, radius: i32, rng: &mut impl Rng) {
-    let radius_cw = ORIGIN.ring_iter(radius, Spin::CW(ZX));
-    let radius_ccw = ORIGIN.ring_iter(radius, Spin::CCW(ZX));
+    let two_edges = radius as usize * 2 + 1;
 
-    let x_lines = radius_cw
-        .filter(|coord| ORIGIN.distance(*coord + YZ) < radius)
-        .zip(radius_ccw.filter(|coord| ORIGIN.distance(*coord + ZY) < radius))
-        .map(|(c1, c2)| c1.line_to_iter(c2));
+    let x_chords = zip(
+        ORIGIN.ring_iter(radius, Spin::CW(YX)),
+        ORIGIN.ring_iter(radius, Spin::CCW(ZX)),
+    )
+    .take(two_edges);
 
-    // Move where we calculate the radius from so that both arcs that y_lines
-    // needs are contiguous.
-    let radius_cw = ORIGIN.ring_iter(radius, Spin::CW(ZY));
-    let radius_ccw = ORIGIN.ring_iter(radius, Spin::CCW(ZY));
+    let y_chords = zip(
+        ORIGIN.ring_iter(radius, Spin::CW(ZY)),
+        ORIGIN.ring_iter(radius, Spin::CCW(XY)),
+    )
+    .take(two_edges);
 
-    let y_lines = radius_cw
-        .filter(|coord| ORIGIN.distance(*coord + XZ) < radius)
-        .zip(radius_ccw.filter(|coord| ORIGIN.distance(*coord + ZX) < radius))
-        .map(|(c1, c2)| c1.line_to_iter(c2));
-
-    let z_lines = radius_cw
-        .filter(|coord| ORIGIN.distance(*coord + YX) < radius)
-        .zip(radius_ccw.filter(|coord| ORIGIN.distance(*coord + XY) < radius))
-        .map(|(c1, c2)| c1.line_to_iter(c2));
+    let z_chords = zip(
+        ORIGIN.ring_iter(radius, Spin::CW(XZ)),
+        ORIGIN.ring_iter(radius, Spin::CCW(YZ)),
+    )
+    .take(two_edges);
 
     let mut doors: Vec<Coordinate> = Vec::new();
     let mut done = (false, false, false);
 
     while !(done.0 && done.1 && done.2) {
         if !done.0 {
-            let longest_x_path = longest_path(tiles, x_lines.clone());
+            let longest_x_path = longest_path(tiles, x_chords.clone());
             match bisect_path(tiles, longest_x_path, &[ZX, XY], rng) {
                 Some(c) => doors.push(c),
                 None => done.0 = true,
@@ -42,7 +40,7 @@ pub(super) fn run(tiles: &mut Tiles, radius: i32, rng: &mut impl Rng) {
         }
 
         if !done.1 {
-            let longest_y_path = longest_path(tiles, y_lines.clone());
+            let longest_y_path = longest_path(tiles, y_chords.clone());
             match bisect_path(tiles, longest_y_path, &[ZY, XY], rng) {
                 Some(c) => doors.push(c),
                 None => done.1 = true,
@@ -50,7 +48,7 @@ pub(super) fn run(tiles: &mut Tiles, radius: i32, rng: &mut impl Rng) {
         }
 
         if !done.2 {
-            let longest_z_path = longest_path(tiles, z_lines.clone());
+            let longest_z_path = longest_path(tiles, z_chords.clone());
             match bisect_path(tiles, longest_z_path, &[ZY, ZX], rng) {
                 Some(c) => doors.push(c),
                 None => done.2 = true,
@@ -63,13 +61,13 @@ pub(super) fn run(tiles: &mut Tiles, radius: i32, rng: &mut impl Rng) {
 
 fn longest_path(
     tiles: &Tiles,
-    lines: impl Iterator<Item = LineTo<i32>>,
+    lines: impl Iterator<Item = (Coordinate, Coordinate)>,
 ) -> (Coordinate, Coordinate) {
     let mut paths: Vec<(Coordinate, Coordinate)> = Vec::new();
 
-    for line in lines {
+    for (c1, c2) in lines {
         let mut path_start: Option<Coordinate> = None;
-        let mut line = line.peekable();
+        let mut line = c1.line_to_iter(c2).peekable();
 
         while let Some(coord) = line.next() {
             if path_start.is_none() && !is_blocked(tiles, &coord) {
