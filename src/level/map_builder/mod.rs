@@ -22,7 +22,7 @@ impl<R: Rng> MapBuilder<R> {
             rng,
             tiles: HashMap::new(),
             player_origin: Some((0, 0).into()),
-            spawn_points: vec![(0, -2).into(), (2, 0).into(), (-2, 2).into()],
+            spawn_points: Vec::new(),
             spawn_table: SpawnTable::new(spawn_table),
         }
     }
@@ -41,6 +41,16 @@ impl<R: Rng> MapBuilder<R> {
 
     pub fn run_bisection_generator(mut self, radius: i32) -> Self {
         bisection_generator::run(&mut self.tiles, radius, &mut self.rng);
+
+        self
+    }
+
+    pub fn random_spawns(mut self, count: i32) -> Self {
+        self.spawn_points = self
+            .tiles
+            .iter()
+            .filter_map(|(&coord, &tile)| (tile == MapTile::Floor).then_some(coord))
+            .choose_multiple(&mut self.rng, count as usize);
 
         self
     }

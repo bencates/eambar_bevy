@@ -46,6 +46,7 @@ fn spawn(world: &mut World) {
     )
     .empty_hexagon(24)
     .run_bisection_generator(24)
+    .random_spawns(15)
     .spawn(world);
 
     let tiles: Vec<_> = tile_ids.values().cloned().collect();
